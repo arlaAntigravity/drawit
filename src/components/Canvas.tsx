@@ -9,6 +9,7 @@ import ReactFlow, {
   useReactFlow,
   SelectionMode,
   BackgroundVariant,
+  ConnectionMode,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
@@ -100,6 +101,7 @@ function CanvasInner() {
         onSelectionChange={onSelectionChange}
         nodeTypes={nodeTypes}
         selectionMode={SelectionMode.Partial}
+        connectionMode={ConnectionMode.Loose}
         fitView
         snapToGrid
         snapGrid={[15, 15]}
@@ -134,6 +136,30 @@ function CanvasInner() {
           maskColor="rgba(0, 0, 0, 0.8)"
           className="!bg-card !border-border"
         />
+        {/* Custom marker for selected edges */}
+        <svg style={{ position: 'absolute', width: 0, height: 0 }}>
+          <defs>
+            <marker
+              id="react-flow__arrowclosed-selected"
+              viewBox="0 0 20 20"
+              markerWidth="12"
+              markerHeight="12"
+              refX="10"
+              refY="10"
+              orient="auto"
+              markerUnits="strokeWidth"
+            >
+              <polyline
+                stroke="#f59e0b"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                fill="#f59e0b"
+                points="0,0 20,10 0,20 5,10"
+              />
+            </marker>
+          </defs>
+        </svg>
       </ReactFlow>
     </div>
   );

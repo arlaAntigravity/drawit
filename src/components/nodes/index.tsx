@@ -16,13 +16,13 @@ export const RectangleNode = memo(({ data, selected }: NodeProps<NodeData>) => {
         boxShadow: selected ? `0 0 0 2px #6366f1, 0 0 20px rgba(99, 102, 241, 0.3)` : 'none',
       }}
     >
-      <Handle type="target" position={Position.Top} className="!w-3 !h-3 !bg-indigo-500 !border-2 !border-white" />
-      <Handle type="target" position={Position.Left} className="!w-3 !h-3 !bg-indigo-500 !border-2 !border-white" />
+      <Handle type="source" position={Position.Top} id="top" className="!w-3 !h-3 !bg-indigo-500 !border-2 !border-white" />
+      <Handle type="source" position={Position.Bottom} id="bottom" className="!w-3 !h-3 !bg-indigo-500 !border-2 !border-white" />
+      <Handle type="source" position={Position.Left} id="left" className="!w-3 !h-3 !bg-indigo-500 !border-2 !border-white" />
+      <Handle type="source" position={Position.Right} id="right" className="!w-3 !h-3 !bg-indigo-500 !border-2 !border-white" />
       <span style={{ color: data.textColor, fontSize: data.fontSize }} className="text-center px-2">
         {data.label}
       </span>
-      <Handle type="source" position={Position.Bottom} className="!w-3 !h-3 !bg-indigo-500 !border-2 !border-white" />
-      <Handle type="source" position={Position.Right} className="!w-3 !h-3 !bg-indigo-500 !border-2 !border-white" />
     </div>
   );
 });
@@ -40,13 +40,13 @@ export const RoundedRectNode = memo(({ data, selected }: NodeProps<NodeData>) =>
         boxShadow: selected ? `0 0 0 2px #22c55e, 0 0 20px rgba(34, 197, 94, 0.3)` : 'none',
       }}
     >
-      <Handle type="target" position={Position.Top} className="!w-3 !h-3 !bg-green-500 !border-2 !border-white" />
-      <Handle type="target" position={Position.Left} className="!w-3 !h-3 !bg-green-500 !border-2 !border-white" />
+      <Handle type="source" position={Position.Top} id="top" className="!w-3 !h-3 !bg-green-500 !border-2 !border-white" />
+      <Handle type="source" position={Position.Bottom} id="bottom" className="!w-3 !h-3 !bg-green-500 !border-2 !border-white" />
+      <Handle type="source" position={Position.Left} id="left" className="!w-3 !h-3 !bg-green-500 !border-2 !border-white" />
+      <Handle type="source" position={Position.Right} id="right" className="!w-3 !h-3 !bg-green-500 !border-2 !border-white" />
       <span style={{ color: data.textColor, fontSize: data.fontSize }} className="text-center px-2">
         {data.label}
       </span>
-      <Handle type="source" position={Position.Bottom} className="!w-3 !h-3 !bg-green-500 !border-2 !border-white" />
-      <Handle type="source" position={Position.Right} className="!w-3 !h-3 !bg-green-500 !border-2 !border-white" />
     </div>
   );
 });
@@ -72,13 +72,13 @@ export const DiamondNode = memo(({ data, selected }: NodeProps<NodeData>) => {
           }}
         />
       </svg>
-      <Handle type="target" position={Position.Top} className="!w-3 !h-3 !bg-amber-500 !border-2 !border-white !top-0" />
-      <Handle type="target" position={Position.Left} className="!w-3 !h-3 !bg-amber-500 !border-2 !border-white !left-0" />
+      <Handle type="source" position={Position.Top} id="top" className="!w-3 !h-3 !bg-amber-500 !border-2 !border-white !top-0" />
+      <Handle type="source" position={Position.Bottom} id="bottom" className="!w-3 !h-3 !bg-amber-500 !border-2 !border-white !bottom-0" />
+      <Handle type="source" position={Position.Left} id="left" className="!w-3 !h-3 !bg-amber-500 !border-2 !border-white !left-0" />
+      <Handle type="source" position={Position.Right} id="right" className="!w-3 !h-3 !bg-amber-500 !border-2 !border-white !right-0" />
       <span style={{ color: data.textColor, fontSize: data.fontSize }} className="relative z-10 text-center px-4">
         {data.label}
       </span>
-      <Handle type="source" position={Position.Bottom} className="!w-3 !h-3 !bg-amber-500 !border-2 !border-white !bottom-0" />
-      <Handle type="source" position={Position.Right} className="!w-3 !h-3 !bg-amber-500 !border-2 !border-white !right-0" />
     </div>
   );
 });
@@ -96,13 +96,13 @@ export const EllipseNode = memo(({ data, selected }: NodeProps<NodeData>) => {
         boxShadow: selected ? `0 0 0 2px #ec4899, 0 0 20px rgba(236, 72, 153, 0.3)` : 'none',
       }}
     >
-      <Handle type="target" position={Position.Top} className="!w-3 !h-3 !bg-pink-500 !border-2 !border-white" />
-      <Handle type="target" position={Position.Left} className="!w-3 !h-3 !bg-pink-500 !border-2 !border-white" />
+      <Handle type="source" position={Position.Top} id="top" className="!w-3 !h-3 !bg-pink-500 !border-2 !border-white" />
+      <Handle type="source" position={Position.Bottom} id="bottom" className="!w-3 !h-3 !bg-pink-500 !border-2 !border-white" />
+      <Handle type="source" position={Position.Left} id="left" className="!w-3 !h-3 !bg-pink-500 !border-2 !border-white" />
+      <Handle type="source" position={Position.Right} id="right" className="!w-3 !h-3 !bg-pink-500 !border-2 !border-white" />
       <span style={{ color: data.textColor, fontSize: data.fontSize }} className="text-center px-2">
         {data.label}
       </span>
-      <Handle type="source" position={Position.Bottom} className="!w-3 !h-3 !bg-pink-500 !border-2 !border-white" />
-      <Handle type="source" position={Position.Right} className="!w-3 !h-3 !bg-pink-500 !border-2 !border-white" />
     </div>
   );
 });
@@ -119,13 +119,13 @@ export const TextNode = memo(({ data, selected }: NodeProps<NodeData>) => {
         borderRadius: 4,
       }}
     >
-      <Handle type="target" position={Position.Top} className="!w-3 !h-3 !bg-violet-500 !border-2 !border-white !opacity-0 hover:!opacity-100" />
-      <Handle type="target" position={Position.Left} className="!w-3 !h-3 !bg-violet-500 !border-2 !border-white !opacity-0 hover:!opacity-100" />
+      <Handle type="source" position={Position.Top} id="top" className="!w-3 !h-3 !bg-violet-500 !border-2 !border-white !opacity-0 hover:!opacity-100" />
+      <Handle type="source" position={Position.Bottom} id="bottom" className="!w-3 !h-3 !bg-violet-500 !border-2 !border-white !opacity-0 hover:!opacity-100" />
+      <Handle type="source" position={Position.Left} id="left" className="!w-3 !h-3 !bg-violet-500 !border-2 !border-white !opacity-0 hover:!opacity-100" />
+      <Handle type="source" position={Position.Right} id="right" className="!w-3 !h-3 !bg-violet-500 !border-2 !border-white !opacity-0 hover:!opacity-100" />
       <span style={{ color: data.textColor, fontSize: data.fontSize }} className="text-center">
         {data.label}
       </span>
-      <Handle type="source" position={Position.Bottom} className="!w-3 !h-3 !bg-violet-500 !border-2 !border-white !opacity-0 hover:!opacity-100" />
-      <Handle type="source" position={Position.Right} className="!w-3 !h-3 !bg-violet-500 !border-2 !border-white !opacity-0 hover:!opacity-100" />
     </div>
   );
 });
@@ -191,13 +191,13 @@ export const CylinderNode = memo(({ data, selected }: NodeProps<NodeData>) => {
           }}
         />
       </svg>
-      <Handle type="target" position={Position.Top} className="!w-3 !h-3 !bg-cyan-500 !border-2 !border-white" />
-      <Handle type="target" position={Position.Left} className="!w-3 !h-3 !bg-cyan-500 !border-2 !border-white" />
+      <Handle type="source" position={Position.Top} id="top" className="!w-3 !h-3 !bg-cyan-500 !border-2 !border-white" />
+      <Handle type="source" position={Position.Bottom} id="bottom" className="!w-3 !h-3 !bg-cyan-500 !border-2 !border-white" />
+      <Handle type="source" position={Position.Left} id="left" className="!w-3 !h-3 !bg-cyan-500 !border-2 !border-white" />
+      <Handle type="source" position={Position.Right} id="right" className="!w-3 !h-3 !bg-cyan-500 !border-2 !border-white" />
       <span style={{ color: data.textColor, fontSize: data.fontSize }} className="relative z-10 text-center px-2 mt-2">
         {data.label}
       </span>
-      <Handle type="source" position={Position.Bottom} className="!w-3 !h-3 !bg-cyan-500 !border-2 !border-white" />
-      <Handle type="source" position={Position.Right} className="!w-3 !h-3 !bg-cyan-500 !border-2 !border-white" />
     </div>
   );
 });

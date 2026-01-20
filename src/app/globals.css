@@ -158,6 +158,23 @@
 
 .react-flow__edge-path {
   stroke-width: 2px;
+  transition: stroke 0.2s ease, stroke-width 0.2s ease, filter 0.2s ease;
+  cursor: pointer;
+}
+
+.react-flow__edge.selected .react-flow__edge-path {
+  stroke: #f59e0b !important;
+  stroke-width: 4px;
+  filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.6));
+}
+
+.react-flow__edge:hover .react-flow__edge-path {
+  stroke-width: 3px;
+  filter: drop-shadow(0 0 4px rgba(99, 102, 241, 0.4));
+}
+
+.react-flow__edge.selected .react-flow__edge-path[marker-end] {
+  marker-end: url(#react-flow__arrowclosed-selected) !important;
 }
 
 .react-flow__handle {
@@ -169,3 +186,4 @@
 .react-flow__node.selected .react-flow__handle {
   opacity: 1;
 }
+
