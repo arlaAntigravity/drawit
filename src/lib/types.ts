@@ -1,7 +1,17 @@
-import { Node, Edge } from 'reactflow';
+import {
+  Node,
+  Edge,
+} from "reactflow";
 
 // Node Types
-export type NodeType = 'rectangle' | 'roundedRect' | 'diamond' | 'ellipse' | 'text' | 'cylinder';
+export type NodeType =
+  | "rectangle"
+  | "roundedRect"
+  | "diamond"
+  | "ellipse"
+  | "text"
+  | "cylinder"
+  | "triangle";
 
 // Node Data
 export interface NodeData {
