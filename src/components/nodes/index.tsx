@@ -1,10 +1,17 @@
 'use client';
 
 import React, { memo } from 'react';
-import { Handle, Position, NodeProps } from 'reactflow';
-import { NodeData } from '@/store/useStore';
+import { NodeProps, Handle, Position } from 'reactflow';
+import { NodeData } from '@/lib/types';
+import { NodeHandles } from './NodeHandles';
+import { NODE_STYLES, HANDLE_COLORS } from '@/lib/constants';
 
+// ============================================================================
+// Rectangle Node
+// ============================================================================
 export const RectangleNode = memo(({ data, selected }: NodeProps<NodeData>) => {
+  const style = NODE_STYLES.rectangle;
+  
   return (
     <div
       className="relative flex items-center justify-center transition-shadow"
@@ -13,13 +20,12 @@ export const RectangleNode = memo(({ data, selected }: NodeProps<NodeData>) => {
         height: data.height,
         backgroundColor: data.backgroundColor,
         border: `${data.borderWidth}px solid ${data.borderColor}`,
-        boxShadow: selected ? `0 0 0 2px #6366f1, 0 0 20px rgba(99, 102, 241, 0.3)` : 'none',
+        boxShadow: selected 
+          ? `0 0 0 2px ${style.borderColor}, 0 0 20px ${style.selectedShadowColor}` 
+          : 'none',
       }}
     >
-      <Handle type="source" position={Position.Top} id="top" className="!w-3 !h-3 !bg-indigo-500 !border-2 !border-white" />
-      <Handle type="source" position={Position.Bottom} id="bottom" className="!w-3 !h-3 !bg-indigo-500 !border-2 !border-white" />
-      <Handle type="source" position={Position.Left} id="left" className="!w-3 !h-3 !bg-indigo-500 !border-2 !border-white" />
-      <Handle type="source" position={Position.Right} id="right" className="!w-3 !h-3 !bg-indigo-500 !border-2 !border-white" />
+      <NodeHandles colorClass={HANDLE_COLORS[style.handleColor]} />
       <span style={{ color: data.textColor, fontSize: data.fontSize }} className="text-center px-2">
         {data.label}
       </span>
@@ -28,7 +34,12 @@ export const RectangleNode = memo(({ data, selected }: NodeProps<NodeData>) => {
 });
 RectangleNode.displayName = 'RectangleNode';
 
+// ============================================================================
+// Rounded Rectangle Node
+// ============================================================================
 export const RoundedRectNode = memo(({ data, selected }: NodeProps<NodeData>) => {
+  const style = NODE_STYLES.roundedRect;
+  
   return (
     <div
       className="relative flex items-center justify-center rounded-xl transition-shadow"
@@ -37,13 +48,12 @@ export const RoundedRectNode = memo(({ data, selected }: NodeProps<NodeData>) =>
         height: data.height,
         backgroundColor: data.backgroundColor,
         border: `${data.borderWidth}px solid ${data.borderColor}`,
-        boxShadow: selected ? `0 0 0 2px #22c55e, 0 0 20px rgba(34, 197, 94, 0.3)` : 'none',
+        boxShadow: selected 
+          ? `0 0 0 2px ${style.borderColor}, 0 0 20px ${style.selectedShadowColor}` 
+          : 'none',
       }}
     >
-      <Handle type="source" position={Position.Top} id="top" className="!w-3 !h-3 !bg-green-500 !border-2 !border-white" />
-      <Handle type="source" position={Position.Bottom} id="bottom" className="!w-3 !h-3 !bg-green-500 !border-2 !border-white" />
-      <Handle type="source" position={Position.Left} id="left" className="!w-3 !h-3 !bg-green-500 !border-2 !border-white" />
-      <Handle type="source" position={Position.Right} id="right" className="!w-3 !h-3 !bg-green-500 !border-2 !border-white" />
+      <NodeHandles colorClass={HANDLE_COLORS[style.handleColor]} />
       <span style={{ color: data.textColor, fontSize: data.fontSize }} className="text-center px-2">
         {data.label}
       </span>
@@ -52,14 +62,17 @@ export const RoundedRectNode = memo(({ data, selected }: NodeProps<NodeData>) =>
 });
 RoundedRectNode.displayName = 'RoundedRectNode';
 
+// ============================================================================
+// Diamond Node
+// ============================================================================
 export const DiamondNode = memo(({ data, selected }: NodeProps<NodeData>) => {
+  const style = NODE_STYLES.diamond;
+  const handleClass = `${HANDLE_COLORS[style.handleColor]}`;
+  
   return (
     <div
       className="relative flex items-center justify-center"
-      style={{
-        width: data.width,
-        height: data.height,
-      }}
+      style={{ width: data.width, height: data.height }}
     >
       <svg width="100%" height="100%" viewBox="0 0 100 100" className="absolute inset-0">
         <polygon
@@ -68,14 +81,14 @@ export const DiamondNode = memo(({ data, selected }: NodeProps<NodeData>) => {
           stroke={data.borderColor}
           strokeWidth={data.borderWidth * 2}
           style={{
-            filter: selected ? 'drop-shadow(0 0 8px rgba(245, 158, 11, 0.5))' : 'none',
+            filter: selected ? `drop-shadow(0 0 8px ${style.selectedShadowColor})` : 'none',
           }}
         />
       </svg>
-      <Handle type="source" position={Position.Top} id="top" className="!w-3 !h-3 !bg-amber-500 !border-2 !border-white !top-0" />
-      <Handle type="source" position={Position.Bottom} id="bottom" className="!w-3 !h-3 !bg-amber-500 !border-2 !border-white !bottom-0" />
-      <Handle type="source" position={Position.Left} id="left" className="!w-3 !h-3 !bg-amber-500 !border-2 !border-white !left-0" />
-      <Handle type="source" position={Position.Right} id="right" className="!w-3 !h-3 !bg-amber-500 !border-2 !border-white !right-0" />
+      <Handle type="source" position={Position.Top} id="top" className={`!w-3 !h-3 ${handleClass} !border-2 !border-white !top-0`} />
+      <Handle type="source" position={Position.Bottom} id="bottom" className={`!w-3 !h-3 ${handleClass} !border-2 !border-white !bottom-0`} />
+      <Handle type="source" position={Position.Left} id="left" className={`!w-3 !h-3 ${handleClass} !border-2 !border-white !left-0`} />
+      <Handle type="source" position={Position.Right} id="right" className={`!w-3 !h-3 ${handleClass} !border-2 !border-white !right-0`} />
       <span style={{ color: data.textColor, fontSize: data.fontSize }} className="relative z-10 text-center px-4">
         {data.label}
       </span>
@@ -84,7 +97,12 @@ export const DiamondNode = memo(({ data, selected }: NodeProps<NodeData>) => {
 });
 DiamondNode.displayName = 'DiamondNode';
 
+// ============================================================================
+// Ellipse Node
+// ============================================================================
 export const EllipseNode = memo(({ data, selected }: NodeProps<NodeData>) => {
+  const style = NODE_STYLES.ellipse;
+  
   return (
     <div
       className="relative flex items-center justify-center rounded-full transition-shadow"
@@ -93,13 +111,12 @@ export const EllipseNode = memo(({ data, selected }: NodeProps<NodeData>) => {
         height: data.height,
         backgroundColor: data.backgroundColor,
         border: `${data.borderWidth}px solid ${data.borderColor}`,
-        boxShadow: selected ? `0 0 0 2px #ec4899, 0 0 20px rgba(236, 72, 153, 0.3)` : 'none',
+        boxShadow: selected 
+          ? `0 0 0 2px ${style.borderColor}, 0 0 20px ${style.selectedShadowColor}` 
+          : 'none',
       }}
     >
-      <Handle type="source" position={Position.Top} id="top" className="!w-3 !h-3 !bg-pink-500 !border-2 !border-white" />
-      <Handle type="source" position={Position.Bottom} id="bottom" className="!w-3 !h-3 !bg-pink-500 !border-2 !border-white" />
-      <Handle type="source" position={Position.Left} id="left" className="!w-3 !h-3 !bg-pink-500 !border-2 !border-white" />
-      <Handle type="source" position={Position.Right} id="right" className="!w-3 !h-3 !bg-pink-500 !border-2 !border-white" />
+      <NodeHandles colorClass={HANDLE_COLORS[style.handleColor]} />
       <span style={{ color: data.textColor, fontSize: data.fontSize }} className="text-center px-2">
         {data.label}
       </span>
@@ -108,21 +125,28 @@ export const EllipseNode = memo(({ data, selected }: NodeProps<NodeData>) => {
 });
 EllipseNode.displayName = 'EllipseNode';
 
+// ============================================================================
+// Text Node
+// ============================================================================
 export const TextNode = memo(({ data, selected }: NodeProps<NodeData>) => {
+  const style = NODE_STYLES.text;
+  
   return (
     <div
       className="relative flex items-center justify-center transition-shadow"
       style={{
         width: data.width,
         minHeight: data.height,
-        boxShadow: selected ? `0 0 0 2px #8b5cf6, 0 0 20px rgba(139, 92, 246, 0.3)` : 'none',
+        boxShadow: selected 
+          ? `0 0 0 2px #8b5cf6, 0 0 20px ${style.selectedShadowColor}` 
+          : 'none',
         borderRadius: 4,
       }}
     >
-      <Handle type="source" position={Position.Top} id="top" className="!w-3 !h-3 !bg-violet-500 !border-2 !border-white !opacity-0 hover:!opacity-100" />
-      <Handle type="source" position={Position.Bottom} id="bottom" className="!w-3 !h-3 !bg-violet-500 !border-2 !border-white !opacity-0 hover:!opacity-100" />
-      <Handle type="source" position={Position.Left} id="left" className="!w-3 !h-3 !bg-violet-500 !border-2 !border-white !opacity-0 hover:!opacity-100" />
-      <Handle type="source" position={Position.Right} id="right" className="!w-3 !h-3 !bg-violet-500 !border-2 !border-white !opacity-0 hover:!opacity-100" />
+      <NodeHandles 
+        colorClass={HANDLE_COLORS[style.handleColor]} 
+        extraClass="!opacity-0 hover:!opacity-100" 
+      />
       <span style={{ color: data.textColor, fontSize: data.fontSize }} className="text-center">
         {data.label}
       </span>
@@ -131,15 +155,17 @@ export const TextNode = memo(({ data, selected }: NodeProps<NodeData>) => {
 });
 TextNode.displayName = 'TextNode';
 
+// ============================================================================
+// Cylinder (Database) Node
+// ============================================================================
 export const CylinderNode = memo(({ data, selected }: NodeProps<NodeData>) => {
+  const style = NODE_STYLES.cylinder;
   const ellipseHeight = 15;
+  
   return (
     <div
       className="relative flex items-center justify-center"
-      style={{
-        width: data.width,
-        height: data.height,
-      }}
+      style={{ width: data.width, height: data.height }}
     >
       <svg width="100%" height="100%" viewBox={`0 0 ${data.width} ${data.height}`} className="absolute inset-0">
         {/* Bottom ellipse */}
@@ -187,14 +213,11 @@ export const CylinderNode = memo(({ data, selected }: NodeProps<NodeData>) => {
           stroke={data.borderColor}
           strokeWidth={data.borderWidth}
           style={{
-            filter: selected ? 'drop-shadow(0 0 8px rgba(6, 182, 212, 0.5))' : 'none',
+            filter: selected ? `drop-shadow(0 0 8px ${style.selectedShadowColor})` : 'none',
           }}
         />
       </svg>
-      <Handle type="source" position={Position.Top} id="top" className="!w-3 !h-3 !bg-cyan-500 !border-2 !border-white" />
-      <Handle type="source" position={Position.Bottom} id="bottom" className="!w-3 !h-3 !bg-cyan-500 !border-2 !border-white" />
-      <Handle type="source" position={Position.Left} id="left" className="!w-3 !h-3 !bg-cyan-500 !border-2 !border-white" />
-      <Handle type="source" position={Position.Right} id="right" className="!w-3 !h-3 !bg-cyan-500 !border-2 !border-white" />
+      <NodeHandles colorClass={HANDLE_COLORS[style.handleColor]} />
       <span style={{ color: data.textColor, fontSize: data.fontSize }} className="relative z-10 text-center px-2 mt-2">
         {data.label}
       </span>
@@ -203,6 +226,9 @@ export const CylinderNode = memo(({ data, selected }: NodeProps<NodeData>) => {
 });
 CylinderNode.displayName = 'CylinderNode';
 
+// ============================================================================
+// Node Types Registry
+// ============================================================================
 export const nodeTypes = {
   rectangle: RectangleNode,
   roundedRect: RoundedRectNode,
