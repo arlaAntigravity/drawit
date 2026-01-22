@@ -74,3 +74,42 @@ export const LogoIcon = ({ size = 20, className }: IconProps) => (
     <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 );
+
+// Layout Icons
+export const LayoutVerticalIcon = ({ size = 16, className }: IconProps) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={className}>
+    <rect x="6" y="2" width="12" height="5" rx="1" />
+    <rect x="3" y="17" width="7" height="5" rx="1" />
+    <rect x="14" y="17" width="7" height="5" rx="1" />
+    <path d="M12 7v5M12 12l-5 5M12 12l5 5" />
+  </svg>
+);
+
+export const LayoutHorizontalIcon = ({ size = 16, className }: IconProps) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={className}>
+    <rect x="2" y="6" width="5" height="12" rx="1" />
+    <rect x="17" y="3" width="5" height="7" rx="1" />
+    <rect x="17" y="14" width="5" height="7" rx="1" />
+    <path d="M7 12h5M12 12l5-5M12 12l5 5" />
+  </svg>
+);
+
+export const LayoutTreeIcon = ({ size = 16, className }: IconProps) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={className}>
+    <circle cx="12" cy="4" r="2" />
+    <circle cx="6" cy="12" r="2" />
+    <circle cx="18" cy="12" r="2" />
+    <circle cx="3" cy="20" r="2" />
+    <circle cx="9" cy="20" r="2" />
+    <circle cx="15" cy="20" r="2" />
+    <circle cx="21" cy="20" r="2" />
+    <path d="M12 6v2M12 8l-6 2M12 8l6 2M6 14v2M6 16l-3 2M6 16l3 2M18 14v2M18 16l-3 2M18 16l3 2" />
+  </svg>
+);
+
+export const PlusIcon = ({ size = 16, className }: IconProps) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={className}>
+    <line x1="12" y1="5" x2="12" y2="19" />
+    <line x1="5" y1="12" x2="19" y2="12" />
+  </svg>
+);

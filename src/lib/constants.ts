@@ -86,6 +86,15 @@ export const NODE_STYLES: Record<
     selectedShadowColor:
       "rgba(239, 68, 68, 0.5)",
   },
+  group: {
+    width: 300,
+    height: 200,
+    backgroundColor: "rgba(30, 30, 46, 0.8)",
+    borderColor: "#6366f1",
+    borderWidth: 2,
+    handleColor: "indigo",
+    selectedShadowColor: "rgba(99, 102, 241, 0.3)",
+  },
 };
 
 // Color presets for property panel

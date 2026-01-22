@@ -606,15 +606,60 @@ TriangleNode.displayName =
   "TriangleNode";
 
 // ============================================================================
+// Group Node (Swimlane/Container)
+// ============================================================================
+export const GroupNode = memo(
+  ({ data, selected }: NodeProps<NodeData>) => {
+    const style = NODE_STYLES.group;
+
+    return (
+      <div
+        className="relative rounded-lg transition-shadow"
+        style={{
+          width: data.width,
+          height: data.height,
+          backgroundColor: data.backgroundColor,
+          border: `${data.borderWidth}px dashed ${data.borderColor}`,
+          boxShadow: selected
+            ? `0 0 0 2px ${style.borderColor}, 0 0 20px ${style.selectedShadowColor}`
+            : "none",
+        }}
+      >
+        {/* Header */}
+        <div
+          className="absolute top-0 left-0 right-0 px-3 py-1.5 rounded-t-lg flex items-center"
+          style={{
+            backgroundColor: data.borderColor,
+          }}
+        >
+          <span
+            style={{
+              color: "#ffffff",
+              fontSize: data.fontSize,
+              fontWeight: 500,
+            }}
+          >
+            {data.label}
+          </span>
+        </div>
+        {/* Handles */}
+        <NodeHandles colorClass={HANDLE_COLORS[style.handleColor]} />
+      </div>
+    );
+  }
+);
+GroupNode.displayName = "GroupNode";
+
+// ============================================================================
 // Node Types Registry
 // ============================================================================
 export const nodeTypes = {
   rectangle: RectangleNode,
-  roundedRect:
-    RoundedRectNode,
+  roundedRect: RoundedRectNode,
   diamond: DiamondNode,
   ellipse: EllipseNode,
   text: TextNode,
   cylinder: CylinderNode,
   triangle: TriangleNode,
+  group: GroupNode,
 };

@@ -187,3 +187,14 @@
   opacity: 1;
 }
 
+/* Reset React Flow default group styles */
+.react-flow .react-flow__node-group {
+  background-color: transparent !important;
+  background: none !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+}
+
+

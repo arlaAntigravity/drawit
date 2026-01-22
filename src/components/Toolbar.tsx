@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import {
@@ -16,6 +16,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useStore } from '@/store/useStore';
+import { useAutoLayout } from '@/hooks/useAutoLayout';
 import { toPng, toSvg } from 'html-to-image';
 import {
   UndoIcon,
@@ -26,13 +27,21 @@ import {
   ImageIcon,
   LayersIcon,
   FileIcon,
+  LayoutVerticalIcon,
+  LayoutHorizontalIcon,
+  LayoutTreeIcon,
+  PlusIcon,
 } from '@/components/icons';
+import { PresetModal } from '@/components/PresetModal';
 
 export function Toolbar() {
   const { nodes, edges, undo, redo, setNodes, setEdges, history, historyIndex } = useStore();
+  const { layoutVertical, layoutHorizontal, layoutTree } = useAutoLayout();
+  const [presetModalOpen, setPresetModalOpen] = useState(false);
 
   const canUndo = historyIndex > 0;
   const canRedo = historyIndex < history.length - 1;
+  const hasNodes = nodes.length > 0;
 
   const handleExportPNG = useCallback(async () => {
     const element = document.querySelector('.react-flow') as HTMLElement;
@@ -103,8 +112,16 @@ export function Toolbar() {
   return (
     <TooltipProvider>
       <div className="h-12 border-b border-border bg-card flex items-center px-4 gap-2">
-        <span className="text-sm font-medium text-foreground mr-4">DrawIt</span>
+        <span className="text-sm font-medium text-foreground mr-2">DrawIt</span>
         
+        {/* New */}
+        <ToolbarButton
+          icon={<PlusIcon />}
+          label="Новый"
+          tooltip="Создать из шаблона"
+          onClick={() => setPresetModalOpen(true)}
+        />
+
         <Separator orientation="vertical" className="h-6" />
 
         {/* Undo/Redo */}
@@ -155,6 +172,32 @@ export function Toolbar() {
           onClick={handleImportJSON}
         />
 
+        <Separator orientation="vertical" className="h-6" />
+
+        {/* Layout Menu */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm" className="gap-2" disabled={!hasNodes}>
+              <LayoutVerticalIcon />
+              Раскладка
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem onClick={layoutVertical}>
+              <LayoutVerticalIcon className="mr-2" />
+              Вертикальная
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={layoutHorizontal}>
+              <LayoutHorizontalIcon className="mr-2" />
+              Горизонтальная
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={layoutTree}>
+              <LayoutTreeIcon className="mr-2" />
+              Дерево
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
         <div className="flex-1" />
 
         {/* Clear */}
@@ -164,6 +207,7 @@ export function Toolbar() {
           onClick={handleClear} 
         />
       </div>
+      <PresetModal open={presetModalOpen} onOpenChange={setPresetModalOpen} />
     </TooltipProvider>
   );
 }

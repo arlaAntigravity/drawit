@@ -11,7 +11,8 @@ export type NodeType =
   | "ellipse"
   | "text"
   | "cylinder"
-  | "triangle";
+  | "triangle"
+  | "group";
 
 // Node Data
 export interface NodeData {

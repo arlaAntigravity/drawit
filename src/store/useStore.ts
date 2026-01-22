@@ -34,6 +34,7 @@ export interface DiagramState {
   setNodes: (nodes: Node<NodeData>[]) => void;
   addNode: (type: NodeType, position: XYPosition) => void;
   updateNodeData: (id: string, data: Partial<NodeData>) => void;
+  setNodeParent: (nodeId: string, parentId: string | null) => void;
   onNodesChange: (changes: NodeChange[]) => void;
   
   // Edge Actions
@@ -129,6 +130,38 @@ export const useStore = create<DiagramState>()(
         });
       },
 
+      setNodeParent: (nodeId, parentId) => {
+        get().pushHistory();
+        const nodes = get().nodes;
+        const node = nodes.find(n => n.id === nodeId);
+        const parent = parentId ? nodes.find(n => n.id === parentId) : null;
+        
+        if (!node) return;
+        
+        set({
+          nodes: nodes.map(n => {
+            if (n.id === nodeId) {
+              if (parentId && parent) {
+                // Calculate relative position within parent
+                const relativeX = node.position.x - parent.position.x;
+                const relativeY = node.position.y - parent.position.y;
+                return {
+                  ...n,
+                  parentNode: parentId,
+                  extent: 'parent' as const,
+                  position: { x: relativeX, y: Math.max(30, relativeY) }, // 30px offset for header
+                };
+              } else {
+                // Remove parent
+                const { parentNode, extent, ...rest } = n as any;
+                return rest;
+              }
+            }
+            return n;
+          }),
+        });
+      },
+
       onNodesChange: (changes) => {
         set({
           nodes: applyNodeChanges(changes, get().nodes) as Node<NodeData>[],
@@ -150,8 +183,9 @@ export const useStore = create<DiagramState>()(
           edges: addEdge(
             {
               ...connection,
-              type: 'smoothstep',
+              type: 'labeled',
               style: EDGE_STYLE,
+              data: { label: '' },
               markerEnd: { type: MarkerType.ArrowClosed, color: EDGE_STYLE.stroke },
             },
             get().edges

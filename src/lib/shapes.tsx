@@ -175,4 +175,36 @@ export const SHAPES: ShapeConfig[] =
         </svg>
       ),
     },
+    {
+      type: "group",
+      label: "Группа",
+      icon: (
+        <svg
+          width="40"
+          height="28"
+          viewBox="0 0 40 28"
+          className="stroke-indigo-400"
+        >
+          <rect
+            x="2"
+            y="2"
+            width="36"
+            height="24"
+            rx="3"
+            fill="none"
+            strokeWidth="2"
+            strokeDasharray="4 2"
+          />
+          <rect
+            x="2"
+            y="2"
+            width="36"
+            height="8"
+            rx="3"
+            fill="currentColor"
+            className="fill-indigo-400/30"
+          />
+        </svg>
+      ),
+    },
   ];

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import ReactFlow, {
   Background,
   Controls,
@@ -10,12 +10,17 @@ import ReactFlow, {
   SelectionMode,
   BackgroundVariant,
   ConnectionMode,
+  Node,
+  NodeDragHandler,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
 import { useStore } from '@/store/useStore';
-import { NodeType } from '@/lib/types';
+import { NodeType, NodeData } from '@/lib/types';
 import { nodeTypes } from '@/components/nodes';
+import { edgeTypes } from '@/components/edges';
+import { SnapGuides } from '@/components/SnapGuides';
+import { useSnapGuides, SnapGuide } from '@/hooks/useSnapGuides';
 import { 
   EDGE_STYLE, 
   SELECTED_EDGE_COLOR, 
@@ -41,6 +46,7 @@ const getNodeColor = (node: { type?: string }): string => {
 function CanvasInner() {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition } = useReactFlow();
+  const [guides, setGuides] = useState<SnapGuide[]>([]);
   
   const {
     nodes,
@@ -49,12 +55,15 @@ function CanvasInner() {
     onEdgesChange,
     onConnect,
     addNode,
+    setNodeParent,
     setSelectedNodes,
     setSelectedEdges,
     deleteSelected,
     undo,
     redo,
   } = useStore();
+
+  const { updateGuides, endDrag } = useSnapGuides(nodes);
 
   const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault();
@@ -105,10 +114,104 @@ function CanvasInner() {
     [deleteSelected, undo, redo]
   );
 
+  // Snap guides handlers
+  const onNodeDrag: NodeDragHandler = useCallback(
+    (_event, node) => {
+      const width = (node as Node<NodeData>).data?.width || 100;
+      const height = (node as Node<NodeData>).data?.height || 50;
+      updateGuides(node.id, node.position, width, height);
+      
+      // Calculate snap guides
+      const allNodes = nodes.filter(n => n.id !== node.id);
+      const newGuides: SnapGuide[] = [];
+      const THRESHOLD = 8;
+      
+      const dragLeft = node.position.x;
+      const dragRight = node.position.x + width;
+      const dragCenterX = node.position.x + width / 2;
+      const dragTop = node.position.y;
+      const dragBottom = node.position.y + height;
+      const dragCenterY = node.position.y + height / 2;
+      
+      allNodes.forEach(other => {
+        const otherWidth = other.data?.width || 100;
+        const otherHeight = other.data?.height || 50;
+        const otherLeft = other.position.x;
+        const otherRight = other.position.x + otherWidth;
+        const otherCenterX = other.position.x + otherWidth / 2;
+        const otherTop = other.position.y;
+        const otherBottom = other.position.y + otherHeight;
+        const otherCenterY = other.position.y + otherHeight / 2;
+        
+        // Vertical guides
+        if (Math.abs(dragLeft - otherLeft) < THRESHOLD) {
+          newGuides.push({ type: 'vertical', position: otherLeft });
+        }
+        if (Math.abs(dragRight - otherRight) < THRESHOLD) {
+          newGuides.push({ type: 'vertical', position: otherRight });
+        }
+        if (Math.abs(dragCenterX - otherCenterX) < THRESHOLD) {
+          newGuides.push({ type: 'vertical', position: otherCenterX });
+        }
+        
+        // Horizontal guides
+        if (Math.abs(dragTop - otherTop) < THRESHOLD) {
+          newGuides.push({ type: 'horizontal', position: otherTop });
+        }
+        if (Math.abs(dragBottom - otherBottom) < THRESHOLD) {
+          newGuides.push({ type: 'horizontal', position: otherBottom });
+        }
+        if (Math.abs(dragCenterY - otherCenterY) < THRESHOLD) {
+          newGuides.push({ type: 'horizontal', position: otherCenterY });
+        }
+      });
+      
+      setGuides(newGuides);
+    },
+    [nodes, updateGuides]
+  );
+
+  const onNodeDragStop: NodeDragHandler = useCallback(
+    (_event, draggedNode) => {
+      setGuides([]);
+      endDrag();
+      
+      // Skip if the dragged node is a group itself
+      if (draggedNode.type === 'group') return;
+      
+      // Skip if already has a parent (moving within parent)
+      if ((draggedNode as any).parentNode) return;
+      
+      // Find if node was dropped inside a group
+      const nodeWidth = (draggedNode as Node<NodeData>).data?.width || 100;
+      const nodeHeight = (draggedNode as Node<NodeData>).data?.height || 50;
+      const nodeCenterX = draggedNode.position.x + nodeWidth / 2;
+      const nodeCenterY = draggedNode.position.y + nodeHeight / 2;
+      
+      const groupNode = nodes.find(n => {
+        if (n.type !== 'group' || n.id === draggedNode.id) return false;
+        const groupWidth = n.data?.width || 300;
+        const groupHeight = n.data?.height || 200;
+        
+        return (
+          nodeCenterX > n.position.x &&
+          nodeCenterX < n.position.x + groupWidth &&
+          nodeCenterY > n.position.y &&
+          nodeCenterY < n.position.y + groupHeight
+        );
+      });
+      
+      if (groupNode) {
+        setNodeParent(draggedNode.id, groupNode.id);
+      }
+    },
+    [nodes, endDrag, setNodeParent]
+  );
+
   return (
     <div
       ref={reactFlowWrapper}
-      className="flex-1 h-full"
+      className="flex-1 h-full relative"
       onKeyDown={onKeyDown}
       tabIndex={0}
     >
@@ -121,7 +224,10 @@ function CanvasInner() {
         onDragOver={onDragOver}
         onDrop={onDrop}
         onSelectionChange={onSelectionChange}
+        onNodeDrag={onNodeDrag}
+        onNodeDragStop={onNodeDragStop}
         nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
         selectionMode={SelectionMode.Partial}
         connectionMode={ConnectionMode.Loose}
         fitView
@@ -148,6 +254,8 @@ function CanvasInner() {
           maskColor="rgba(0, 0, 0, 0.8)"
           className="!bg-card !border-border"
         />
+        {/* Snap Guides */}
+        <SnapGuides guides={guides} />
         {/* Custom marker for selected edges */}
         <SelectedEdgeMarker color={SELECTED_EDGE_COLOR} />
       </ReactFlow>
