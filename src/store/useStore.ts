@@ -94,14 +94,13 @@ export const useStore = create<DiagramState>()(
       edges: [],
       selectedNodes: [],
       selectedEdges: [],
-      history: [],
-      historyIndex: -1,
+      history: [{ nodes: [], edges: [] }],
+      historyIndex: 0,
 
       // Node Actions
       setNodes: (nodes) => set({ nodes }),
       
       addNode: (type, position) => {
-        get().pushHistory();
         const nodes = get().nodes;
         const id = generateNodeId();
         const nextNumber = getNextNodeNumber(nodes);
@@ -119,19 +118,19 @@ export const useStore = create<DiagramState>()(
         };
         
         set({ nodes: [...nodes, newNode] });
+        get().pushHistory();
       },
 
       updateNodeData: (id, data) => {
-        get().pushHistory();
         set({
           nodes: get().nodes.map((node) =>
             node.id === id ? { ...node, data: { ...node.data, ...data } } : node
           ),
         });
-      },
-
-      setNodeParent: (nodeId, parentId) => {
         get().pushHistory();
+      },
+      
+      setNodeParent: (nodeId, parentId) => {
         const nodes = get().nodes;
         const node = nodes.find(n => n.id === nodeId);
         const parent = parentId ? nodes.find(n => n.id === parentId) : null;
@@ -142,27 +141,26 @@ export const useStore = create<DiagramState>()(
           nodes: nodes.map(n => {
             if (n.id === nodeId) {
               if (parentId && parent) {
-                // Calculate relative position within parent
                 const relativeX = node.position.x - parent.position.x;
                 const relativeY = node.position.y - parent.position.y;
                 return {
                   ...n,
                   parentNode: parentId,
-                  extent: undefined, // Explicitly remove extent to allow free dragging
-                  position: { x: relativeX, y: Math.max(30, relativeY) }, // 30px offset for header
+                  extent: undefined,
+                  position: { x: relativeX, y: Math.max(30, relativeY) },
                 };
               } else {
-                // Remove parent
                 const { parentNode, extent, ...rest } = n as any;
                 return {
                   ...rest,
-                  extent: undefined // Ensure it's cleared when detaching too
+                  extent: undefined
                 };
               }
             }
             return n;
           }),
         });
+        get().pushHistory();
       },
 
       onNodesChange: (changes) => {
@@ -181,7 +179,6 @@ export const useStore = create<DiagramState>()(
       },
 
       onConnect: (connection) => {
-        get().pushHistory();
         set({
           edges: addEdge(
             {
@@ -194,6 +191,7 @@ export const useStore = create<DiagramState>()(
             get().edges
           ),
         });
+        get().pushHistory();
       },
 
       // Selection Actions
@@ -204,8 +202,6 @@ export const useStore = create<DiagramState>()(
       deleteSelected: () => {
         const { selectedNodes, selectedEdges, nodes, edges } = get();
         if (selectedNodes.length === 0 && selectedEdges.length === 0) return;
-        
-        get().pushHistory();
         
         // Find if any selected nodes are parents of other nodes
         const nodesToDelete = new Set(selectedNodes);
@@ -219,10 +215,7 @@ export const useStore = create<DiagramState>()(
               const { parentNode, extent, ...rest } = n as any;
               return {
                  ...rest, 
-                 extent: undefined, // Clear extent when detaching
-                 // We might want to convert position to absolute here, 
-                 // but ReactFlow might handle it if we use position and not positionAbsolute.
-                 // Ideally we should calculate new absolute position but for now detaching safe.
+                 extent: undefined,
               };
             }
             return n;
@@ -239,6 +232,7 @@ export const useStore = create<DiagramState>()(
           selectedNodes: [],
           selectedEdges: [],
         });
+        get().pushHistory();
       },
 
       // History Actions
@@ -273,6 +267,16 @@ export const useStore = create<DiagramState>()(
     {
       name: 'drawit-storage',
       partialize: (state) => ({ nodes: state.nodes, edges: state.edges }),
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          // Initialize history with rehydrated state to prevent undo-to-empty bug
+          state.history = [{ 
+            nodes: JSON.parse(JSON.stringify(state.nodes)), 
+            edges: JSON.parse(JSON.stringify(state.edges)) 
+          }];
+          state.historyIndex = 0;
+        }
+      },
     }
   )
 );

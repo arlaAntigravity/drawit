@@ -26,7 +26,7 @@ export function PropertiesPanel() {
   };
 
   return (
-    <div className="w-72 border-l border-border bg-card flex flex-col h-full">
+    <div className="w-72 border-l border-border bg-card flex flex-col h-full overflow-hidden">
       {/* Header */}
       <div className="p-4 border-b border-border">
         <h2 className="text-lg font-semibold text-foreground">Свойства</h2>
@@ -124,7 +124,7 @@ export function PropertiesPanel() {
 
 function EmptyState() {
   return (
-    <div className="w-72 border-l border-border bg-card flex flex-col h-full">
+    <div className="w-72 border-l border-border bg-card flex flex-col h-full overflow-hidden">
       <div className="p-4 border-b border-border">
         <h2 className="text-lg font-semibold text-foreground">Свойства</h2>
       </div>

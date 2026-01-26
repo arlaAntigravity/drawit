@@ -140,24 +140,41 @@ function CanvasInner() {
     [setSelectedNodes, setSelectedEdges]
   );
 
-  const onKeyDown = useCallback(
-    (event: React.KeyboardEvent) => {
-      if (event.key === 'Delete' || event.key === 'Backspace') {
+  React.useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Don't trigger shortcuts if user is typing in an input or textarea
+      const target = event.target as HTMLElement;
+      const isInput = 
+        target.tagName === 'INPUT' || 
+        target.tagName === 'TEXTAREA' || 
+        target.isContentEditable;
+
+      if (isInput) return;
+
+      // Use event.code for layout-independent shortcuts
+      if (event.code === 'Delete' || event.code === 'Backspace') {
         deleteSelected();
       }
+      
       if (event.ctrlKey || event.metaKey) {
-        if (event.key === 'z') {
+        if (event.code === 'KeyZ') {
           event.preventDefault();
-          undo();
+          if (event.shiftKey) {
+            redo();
+          } else {
+            undo();
+          }
         }
-        if (event.key === 'y') {
+        if (event.code === 'KeyY') {
           event.preventDefault();
           redo();
         }
       }
-    },
-    [deleteSelected, undo, redo]
-  );
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [deleteSelected, undo, redo]);
 
   // Snap guides handlers
   const onNodeDrag: NodeDragHandler = useCallback(
@@ -263,8 +280,6 @@ function CanvasInner() {
     <div
       ref={reactFlowWrapper}
       className="flex-1 h-full relative"
-      onKeyDown={onKeyDown}
-      tabIndex={0}
     >
       <ReactFlow
         nodes={safeNodes}
