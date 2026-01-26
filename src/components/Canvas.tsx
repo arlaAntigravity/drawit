@@ -61,9 +61,54 @@ function CanvasInner() {
     deleteSelected,
     undo,
     redo,
+    setNodes,
   } = useStore();
+  
+  // Migration to fix stuck nodes and orphans
+  React.useEffect(() => {
+    let hasChanges = false;
+    const existingNodeIds = new Set(nodes.map(n => n.id));
+    
+    const newNodes = nodes.map((n: any) => {
+      let changed = false;
+      const newNode = { ...n };
 
-  const { updateGuides, endDrag } = useSnapGuides(nodes);
+      // Fix 1: Remove extent restriction
+      if (newNode.extent === 'parent') {
+        newNode.extent = undefined;
+        changed = true;
+      }
+      
+      // Fix 2: Remove invalid parent references (Orphans)
+      if (newNode.parentNode && !existingNodeIds.has(newNode.parentNode)) {
+        newNode.parentNode = undefined;
+        newNode.position = newNode.positionAbsolute || newNode.position; // Fallback to absolute if available
+        changed = true;
+      }
+      
+      if (changed) hasChanges = true;
+      return newNode;
+    });
+
+    if (hasChanges) {
+      setNodes(newNodes);
+    }
+  }, []); // Run once on mount
+
+  // Safe nodes for rendering (prevents crash even before effect runs)
+  const safeNodes = React.useMemo(() => {
+    const existingNodeIds = new Set(nodes.map(n => n.id));
+    return nodes.map(n => {
+      if (n.parentNode && !existingNodeIds.has(n.parentNode)) {
+        // Return a copy without the invalid parentNode to prevent ReactFlow crash
+        const { parentNode, ...rest } = n;
+        return rest;
+      }
+      return n;
+    });
+  }, [nodes]);
+
+  const { updateGuides, endDrag } = useSnapGuides(safeNodes);
 
   const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault();
@@ -178,21 +223,19 @@ function CanvasInner() {
       
       // Skip if the dragged node is a group itself
       if (draggedNode.type === 'group') return;
-      
-      // Skip if already has a parent (moving within parent)
-      if ((draggedNode as any).parentNode) return;
-      
-      // Find if node was dropped inside a group
+
       const nodeWidth = (draggedNode as Node<NodeData>).data?.width || 100;
       const nodeHeight = (draggedNode as Node<NodeData>).data?.height || 50;
-      const nodeCenterX = draggedNode.position.x + nodeWidth / 2;
-      const nodeCenterY = draggedNode.position.y + nodeHeight / 2;
-      
-      const groupNode = nodes.find(n => {
+      const nodeCenterX = draggedNode.positionAbsolute?.x! + nodeWidth / 2;
+      const nodeCenterY = draggedNode.positionAbsolute?.y! + nodeHeight / 2;
+
+      // Find if node was dropped inside a group
+      const targetGroup = nodes.find(n => {
         if (n.type !== 'group' || n.id === draggedNode.id) return false;
         const groupWidth = n.data?.width || 300;
         const groupHeight = n.data?.height || 200;
         
+        // Check if center of dragged node is inside the group
         return (
           nodeCenterX > n.position.x &&
           nodeCenterX < n.position.x + groupWidth &&
@@ -200,9 +243,17 @@ function CanvasInner() {
           nodeCenterY < n.position.y + groupHeight
         );
       });
-      
-      if (groupNode) {
-        setNodeParent(draggedNode.id, groupNode.id);
+
+      if (targetGroup) {
+        // If dropped inside a group (new or same), set parent
+        if (draggedNode.parentNode !== targetGroup.id) {
+           setNodeParent(draggedNode.id, targetGroup.id);
+        }
+      } else {
+        // If dropped outside any group, but currently has a parent, detach it
+        if (draggedNode.parentNode) {
+          setNodeParent(draggedNode.id, null);
+        }
       }
     },
     [nodes, endDrag, setNodeParent]
@@ -216,7 +267,7 @@ function CanvasInner() {
       tabIndex={0}
     >
       <ReactFlow
-        nodes={nodes}
+        nodes={safeNodes}
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}

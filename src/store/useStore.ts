@@ -148,13 +148,16 @@ export const useStore = create<DiagramState>()(
                 return {
                   ...n,
                   parentNode: parentId,
-                  extent: 'parent' as const,
+                  extent: undefined, // Explicitly remove extent to allow free dragging
                   position: { x: relativeX, y: Math.max(30, relativeY) }, // 30px offset for header
                 };
               } else {
                 // Remove parent
                 const { parentNode, extent, ...rest } = n as any;
-                return rest;
+                return {
+                  ...rest,
+                  extent: undefined // Ensure it's cleared when detaching too
+                };
               }
             }
             return n;
@@ -203,8 +206,30 @@ export const useStore = create<DiagramState>()(
         if (selectedNodes.length === 0 && selectedEdges.length === 0) return;
         
         get().pushHistory();
+        
+        // Find if any selected nodes are parents of other nodes
+        const nodesToDelete = new Set(selectedNodes);
+        
+        // Update remaining nodes: if their parent is being deleted, detach them
+        const newNodes = nodes
+          .filter((n) => !nodesToDelete.has(n.id))
+          .map((n) => {
+            if (n.parentNode && nodesToDelete.has(n.parentNode)) {
+              // Detach child from deleted parent
+              const { parentNode, extent, ...rest } = n as any;
+              return {
+                 ...rest, 
+                 extent: undefined, // Clear extent when detaching
+                 // We might want to convert position to absolute here, 
+                 // but ReactFlow might handle it if we use position and not positionAbsolute.
+                 // Ideally we should calculate new absolute position but for now detaching safe.
+              };
+            }
+            return n;
+          });
+
         set({
-          nodes: nodes.filter((n) => !selectedNodes.includes(n.id)),
+          nodes: newNodes,
           edges: edges.filter(
             (e) =>
               !selectedEdges.includes(e.id) &&
