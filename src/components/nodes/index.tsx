@@ -10,6 +10,7 @@ import {
 } from "reactflow";
 import { NodeData } from "@/lib/types";
 import { NodeHandles } from "./NodeHandles";
+import { EditableLabel } from "./EditableLabel";
 import {
   NODE_STYLES,
   HANDLE_COLORS,
@@ -21,6 +22,7 @@ import {
 export const RectangleNode =
   memo(
     ({
+      id,
       data,
       selected,
     }: NodeProps<NodeData>) => {
@@ -51,17 +53,12 @@ export const RectangleNode =
               ]
             }
           />
-          <span
-            style={{
-              color:
-                data.textColor,
-              fontSize:
-                data.fontSize,
-            }}
-            className="text-center px-2"
-          >
-            {data.label}
-          </span>
+          <EditableLabel
+            nodeId={id}
+            label={data.label}
+            textColor={data.textColor}
+            fontSize={data.fontSize}
+          />
         </div>
       );
     },
@@ -75,6 +72,7 @@ RectangleNode.displayName =
 export const RoundedRectNode =
   memo(
     ({
+      id,
       data,
       selected,
     }: NodeProps<NodeData>) => {
@@ -105,17 +103,12 @@ export const RoundedRectNode =
               ]
             }
           />
-          <span
-            style={{
-              color:
-                data.textColor,
-              fontSize:
-                data.fontSize,
-            }}
-            className="text-center px-2"
-          >
-            {data.label}
-          </span>
+          <EditableLabel
+            nodeId={id}
+            label={data.label}
+            textColor={data.textColor}
+            fontSize={data.fontSize}
+          />
         </div>
       );
     },
@@ -129,6 +122,7 @@ RoundedRectNode.displayName =
 export const DiamondNode =
   memo(
     ({
+      id,
       data,
       selected,
     }: NodeProps<NodeData>) => {
@@ -203,17 +197,13 @@ export const DiamondNode =
             id="right"
             className={`!w-3 !h-3 ${handleClass} !border-2 !border-white !right-0`}
           />
-          <span
-            style={{
-              color:
-                data.textColor,
-              fontSize:
-                data.fontSize,
-            }}
-            className="relative z-10 text-center px-4"
-          >
-            {data.label}
-          </span>
+          <EditableLabel
+            nodeId={id}
+            label={data.label}
+            textColor={data.textColor}
+            fontSize={data.fontSize}
+            className="relative z-10 px-4"
+          />
         </div>
       );
     },
@@ -227,6 +217,7 @@ DiamondNode.displayName =
 export const EllipseNode =
   memo(
     ({
+      id,
       data,
       selected,
     }: NodeProps<NodeData>) => {
@@ -257,17 +248,12 @@ export const EllipseNode =
               ]
             }
           />
-          <span
-            style={{
-              color:
-                data.textColor,
-              fontSize:
-                data.fontSize,
-            }}
-            className="text-center px-2"
-          >
-            {data.label}
-          </span>
+          <EditableLabel
+            nodeId={id}
+            label={data.label}
+            textColor={data.textColor}
+            fontSize={data.fontSize}
+          />
         </div>
       );
     },
@@ -280,6 +266,7 @@ EllipseNode.displayName =
 // ============================================================================
 export const TextNode = memo(
   ({
+    id,
     data,
     selected,
   }: NodeProps<NodeData>) => {
@@ -308,17 +295,13 @@ export const TextNode = memo(
           }
           extraClass="!opacity-0 hover:!opacity-100"
         />
-        <span
-          style={{
-            color:
-              data.textColor,
-            fontSize:
-              data.fontSize,
-          }}
-          className="text-center"
-        >
-          {data.label}
-        </span>
+        <EditableLabel
+          nodeId={id}
+          label={data.label}
+          textColor={data.textColor}
+          fontSize={data.fontSize}
+          className=""
+        />
       </div>
     );
   },
@@ -332,6 +315,7 @@ TextNode.displayName =
 export const CylinderNode =
   memo(
     ({
+      id,
       data,
       selected,
     }: NodeProps<NodeData>) => {
@@ -489,17 +473,13 @@ export const CylinderNode =
               ]
             }
           />
-          <span
-            style={{
-              color:
-                data.textColor,
-              fontSize:
-                data.fontSize,
-            }}
-            className="relative z-10 text-center px-2 mt-2"
-          >
-            {data.label}
-          </span>
+          <EditableLabel
+            nodeId={id}
+            label={data.label}
+            textColor={data.textColor}
+            fontSize={data.fontSize}
+            className="relative z-10 mt-2"
+          />
         </div>
       );
     },
@@ -513,6 +493,7 @@ CylinderNode.displayName =
 export const TriangleNode =
   memo(
     ({
+      id,
       data,
       selected,
     }: NodeProps<NodeData>) => {
@@ -587,17 +568,13 @@ export const TriangleNode =
             id="right"
             className={`!w-3 !h-3 ${handleClass} !border-2 !border-white !right-0`}
           />
-          <span
-            style={{
-              color:
-                data.textColor,
-              fontSize:
-                data.fontSize,
-            }}
-            className="relative z-10 text-center px-4"
-          >
-            {data.label}
-          </span>
+          <EditableLabel
+            nodeId={id}
+            label={data.label}
+            textColor={data.textColor}
+            fontSize={data.fontSize}
+            className="relative z-10 px-4"
+          />
         </div>
       );
     },
@@ -609,7 +586,7 @@ TriangleNode.displayName =
 // Group Node (Swimlane/Container)
 // ============================================================================
 export const GroupNode = memo(
-  ({ data, selected }: NodeProps<NodeData>) => {
+  ({ id, data, selected }: NodeProps<NodeData>) => {
     const style = NODE_STYLES.group;
 
     return (
@@ -632,15 +609,13 @@ export const GroupNode = memo(
             backgroundColor: data.borderColor,
           }}
         >
-          <span
-            style={{
-              color: "#ffffff",
-              fontSize: data.fontSize,
-              fontWeight: 500,
-            }}
-          >
-            {data.label}
-          </span>
+          <EditableLabel
+            nodeId={id}
+            label={data.label}
+            textColor="#ffffff"
+            fontSize={data.fontSize}
+            className="font-medium"
+          />
         </div>
         {/* Handles */}
         <NodeHandles colorClass={HANDLE_COLORS[style.handleColor]} />
