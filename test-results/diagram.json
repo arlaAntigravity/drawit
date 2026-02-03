@@ -1,0 +1,45 @@
+{
+  "nodes": [
+    {
+      "id": "node-1770152263040",
+      "type": "rectangle",
+      "position": {
+        "x": 195,
+        "y": 150
+      },
+      "data": {
+        "label": "Node 1",
+        "textColor": "#ffffff",
+        "fontSize": 14,
+        "width": 120,
+        "height": 60,
+        "backgroundColor": "#1e1e2e",
+        "borderColor": "#6366f1",
+        "borderWidth": 2
+      },
+      "width": 120,
+      "height": 60
+    },
+    {
+      "id": "node-1770152263237",
+      "type": "diamond",
+      "position": {
+        "x": 270,
+        "y": 90
+      },
+      "data": {
+        "label": "Node 2",
+        "textColor": "#ffffff",
+        "fontSize": 14,
+        "width": 100,
+        "height": 100,
+        "backgroundColor": "#1e1e2e",
+        "borderColor": "#f59e0b",
+        "borderWidth": 2
+      },
+      "width": 100,
+      "height": 100
+    }
+  ],
+  "edges": []
+}
