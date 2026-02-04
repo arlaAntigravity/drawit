@@ -7,6 +7,7 @@ import {
   NodeProps,
   Handle,
   Position,
+  NodeResizer,
 } from "reactflow";
 import { NodeData } from "@/lib/types";
 import { NodeHandles } from "./NodeHandles";
@@ -45,6 +46,13 @@ export const RectangleNode =
                 : "none",
           }}
         >
+          <NodeResizer 
+            isVisible={selected} 
+            minWidth={50} 
+            minHeight={30}
+            handleClassName="!w-2.5 !h-2.5 !bg-indigo-500 !border-white !rounded-full"
+            lineClassName="!border-indigo-500"
+          />
           <NodeHandles
             colorClass={
               HANDLE_COLORS[
@@ -95,6 +103,13 @@ export const RoundedRectNode =
                 : "none",
           }}
         >
+          <NodeResizer 
+            isVisible={selected} 
+            minWidth={50} 
+            minHeight={30}
+            handleClassName="!w-2.5 !h-2.5 !bg-indigo-500 !border-white !rounded-full"
+            lineClassName="!border-indigo-500"
+          />
           <NodeHandles
             colorClass={
               HANDLE_COLORS[
@@ -139,6 +154,13 @@ export const DiamondNode =
               data.height,
           }}
         >
+          <NodeResizer 
+            isVisible={selected} 
+            minWidth={50} 
+            minHeight={50}
+            handleClassName="!w-2.5 !h-2.5 !bg-indigo-500 !border-white !rounded-full"
+            lineClassName="!border-indigo-500"
+          />
           <svg
             width="100%"
             height="100%"
@@ -240,6 +262,13 @@ export const EllipseNode =
                 : "none",
           }}
         >
+          <NodeResizer 
+            isVisible={selected} 
+            minWidth={50} 
+            minHeight={30}
+            handleClassName="!w-2.5 !h-2.5 !bg-indigo-500 !border-white !rounded-full"
+            lineClassName="!border-indigo-500"
+          />
           <NodeHandles
             colorClass={
               HANDLE_COLORS[
@@ -286,6 +315,13 @@ export const TextNode = memo(
           borderRadius: 4,
         }}
       >
+        <NodeResizer 
+          isVisible={selected} 
+          minWidth={50} 
+          minHeight={20}
+          handleClassName="!w-2.5 !h-2.5 !bg-indigo-500 !border-white !rounded-full"
+          lineClassName="!border-indigo-500"
+        />
         <NodeHandles
           colorClass={
             HANDLE_COLORS[
@@ -332,6 +368,13 @@ export const CylinderNode =
               data.height,
           }}
         >
+          <NodeResizer 
+            isVisible={selected} 
+            minWidth={50} 
+            minHeight={60}
+            handleClassName="!w-2.5 !h-2.5 !bg-indigo-500 !border-white !rounded-full"
+            lineClassName="!border-indigo-500"
+          />
           <svg
             width="100%"
             height="100%"
@@ -510,6 +553,13 @@ export const TriangleNode =
               data.height,
           }}
         >
+          <NodeResizer 
+            isVisible={selected} 
+            minWidth={50} 
+            minHeight={50}
+            handleClassName="!w-2.5 !h-2.5 !bg-indigo-500 !border-white !rounded-full"
+            lineClassName="!border-indigo-500"
+          />
           <svg
             width="100%"
             height="100%"
@@ -602,6 +652,13 @@ export const GroupNode = memo(
             : "none",
         }}
       >
+        <NodeResizer 
+          isVisible={selected} 
+          minWidth={150} 
+          minHeight={100}
+          handleClassName="!w-2.5 !h-2.5 !bg-white !border-gray-400 !border-2 !rounded-sm"
+          lineClassName="!border-gray-400 !border-dashed"
+        />
         {/* Header */}
         <div
           className="absolute top-0 left-0 right-0 px-3 py-1.5 rounded-t-lg flex items-center"
