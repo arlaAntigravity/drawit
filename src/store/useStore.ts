@@ -164,9 +164,26 @@ export const useStore = create<DiagramState>()(
       },
 
       onNodesChange: (changes) => {
-        set({
-          nodes: applyNodeChanges(changes, get().nodes) as Node<NodeData>[],
+        const currentNodes = get().nodes;
+        const newNodes = applyNodeChanges(changes, currentNodes) as Node<NodeData>[];
+        
+        // Sync dimensions to data if they changed
+        const syncedNodes = newNodes.map(node => {
+          const dimensionChange = changes.find(c => c.type === 'dimensions' && (c as any).id === node.id) as any;
+          if (dimensionChange && dimensionChange.dimensions) {
+            return {
+              ...node,
+              data: {
+                ...node.data,
+                width: dimensionChange.dimensions.width,
+                height: dimensionChange.dimensions.height,
+              }
+            };
+          }
+          return node;
         });
+
+        set({ nodes: syncedNodes });
       },
 
       // Edge Actions
