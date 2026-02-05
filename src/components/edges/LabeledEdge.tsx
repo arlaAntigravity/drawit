@@ -5,7 +5,6 @@ import {
   EdgeProps,
   getSmoothStepPath,
   EdgeLabelRenderer,
-  MarkerType,
 } from 'reactflow';
 import { useStore } from '@/store/useStore';
 import { EDGE_STYLE, SELECTED_EDGE_COLOR } from '@/lib/constants';
@@ -38,11 +37,13 @@ export function LabeledEdge({
   const pushHistory = useStore((state) => state.pushHistory);
 
   // Sync label with data
-  useEffect(() => {
+  const [prevDataLabel, setPrevDataLabel] = useState(data?.label);
+  if (data?.label !== prevDataLabel) {
+    setPrevDataLabel(data?.label);
     if (!isEditing) {
       setLabelText(data?.label || '');
     }
-  }, [data?.label, isEditing]);
+  }
 
   // Focus input when editing starts
   useEffect(() => {

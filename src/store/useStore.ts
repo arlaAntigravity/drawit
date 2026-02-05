@@ -213,7 +213,7 @@ export const useStore = create<DiagramState>()(
                   position: { x: relativeX, y: Math.max(30, relativeY) },
                 };
               } else {
-                const { parentNode, extent, ...rest } = n as any;
+                const { parentNode: _, extent: __, ...rest } = n;
                 return {
                   ...rest,
                   extent: undefined
@@ -232,7 +232,10 @@ export const useStore = create<DiagramState>()(
         
         // Sync dimensions to data if they changed
         const syncedNodes = newNodes.map(node => {
-          const dimensionChange = changes.find(c => c.type === 'dimensions' && (c as any).id === node.id) as any;
+          const dimensionChange = changes.find(
+            (c): c is { type: 'dimensions'; id: string; dimensions: { width: number; height: number } } => 
+              c.type === 'dimensions' && c.id === node.id
+          );
           if (dimensionChange && dimensionChange.dimensions) {
             return {
               ...node,
@@ -292,7 +295,7 @@ export const useStore = create<DiagramState>()(
           .map((n) => {
             if (n.parentNode && nodesToDelete.has(n.parentNode)) {
               // Detach child from deleted parent
-              const { parentNode, extent, ...rest } = n as any;
+              const { parentNode: _, extent: __, ...rest } = n;
               return {
                  ...rest, 
                  extent: undefined,

@@ -13,7 +13,6 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useStore } from '@/store/useStore';
 import {
   PRESET_CATEGORIES,
-  DIAGRAM_PRESETS,
   getPresetsByCategory,
   type PresetCategory,
   type DiagramPreset,

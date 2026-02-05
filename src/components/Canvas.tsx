@@ -12,6 +12,7 @@ import ReactFlow, {
   ConnectionMode,
   Node,
   NodeDragHandler,
+  Edge,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
@@ -32,7 +33,6 @@ import {
 } from '@/components/ui/context-menu';
 import { 
   EDGE_STYLE, 
-  SELECTED_EDGE_COLOR, 
   SNAP_GRID, 
   BACKGROUND_SETTINGS,
   NODE_STYLES 
@@ -41,7 +41,6 @@ import {
   TrashIcon, 
   CopyIcon, 
   PlusIcon,
-  LayersIcon,
   UndoIcon,
   RedoIcon
 } from '@/components/icons';
@@ -90,7 +89,7 @@ function CanvasInner() {
     let hasChanges = false;
     const existingNodeIds = new Set(nodes.map(n => n.id));
     
-    const newNodes = nodes.map((n: any) => {
+    const newNodes = nodes.map((n: Node) => {
       let changed = false;
       const newNode = { ...n };
 
@@ -120,7 +119,7 @@ function CanvasInner() {
     if (hasChanges) {
       setNodes(newNodes);
     }
-  }, []); // Run once on mount
+  }, [nodes, setNodes]); // Migration to fix stuck nodes and orphans
 
   // Safe nodes for rendering (prevents crash even before effect runs)
   const safeNodes = React.useMemo(() => {
@@ -128,7 +127,7 @@ function CanvasInner() {
     return nodes.map(n => {
       if (n.parentNode && !existingNodeIds.has(n.parentNode)) {
         // Return a copy without the invalid parentNode to prevent ReactFlow crash
-        const { parentNode, ...rest } = n;
+        const { parentNode: _, ...rest } = n;
         return rest;
       }
       return n;
@@ -168,7 +167,7 @@ function CanvasInner() {
   );
 
   const onEdgeContextMenu = useCallback(
-    (event: React.MouseEvent, edge: any) => {
+    (_event: React.MouseEvent, edge: Edge) => {
       setMenuType('edge');
       setMenuTargetId(edge.id);
     },
@@ -176,7 +175,7 @@ function CanvasInner() {
   );
 
   const onPaneContextMenu = useCallback(
-    (event: React.MouseEvent) => {
+    (_event: React.MouseEvent) => {
       setMenuType('pane');
       setMenuTargetId(null);
     },
@@ -312,8 +311,8 @@ function CanvasInner() {
 
       const nodeWidth = (draggedNode as Node<NodeData>).data?.width || 100;
       const nodeHeight = (draggedNode as Node<NodeData>).data?.height || 50;
-      const nodeCenterX = draggedNode.positionAbsolute?.x! + nodeWidth / 2;
-      const nodeCenterY = draggedNode.positionAbsolute?.y! + nodeHeight / 2;
+      const nodeCenterX = (draggedNode.positionAbsolute?.x ?? 0) + nodeWidth / 2;
+      const nodeCenterY = (draggedNode.positionAbsolute?.y ?? 0) + nodeHeight / 2;
 
       // Find if node was dropped inside a group
       const targetGroup = nodes.find(n => {
@@ -457,36 +456,6 @@ function CanvasInner() {
   );
 }
 
-// ============================================================================
-// Selected Edge Marker Component
-// ============================================================================
-function SelectedEdgeMarker({ color }: { color: string }) {
-  return (
-    <svg style={{ position: 'absolute', width: 0, height: 0 }}>
-      <defs>
-        <marker
-          id="react-flow__arrowclosed-selected"
-          viewBox="0 0 20 20"
-          markerWidth="12"
-          markerHeight="12"
-          refX="10"
-          refY="10"
-          orient="auto"
-          markerUnits="strokeWidth"
-        >
-          <polyline
-            stroke={color}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            fill={color}
-            points="0,0 20,10 0,20 5,10"
-          />
-        </marker>
-      </defs>
-    </svg>
-  );
-}
 
 // ============================================================================
 // Canvas Export

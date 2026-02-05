@@ -18,10 +18,6 @@ test.describe('Панель инструментов', () => {
 
   test('кнопка отмены активна после действий', async ({ page }) => {
     // Сначала ничего нельзя отменить
-    const undoButton = page.locator('button[aria-label="Отменить"]').or(
-      page.locator('button').filter({ has: page.locator('svg') }).first()
-    );
-    
     // Добавляем узел
     await dragShapeToCanvas(page, 'Прямоугольник', 300, 200);
     

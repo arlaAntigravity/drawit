@@ -28,11 +28,13 @@ export function EditableLabel({
   const updateNodeData = useStore((state) => state.updateNodeData);
 
   // Sync with prop changes when not editing
-  useEffect(() => {
+  const [prevLabel, setPrevLabel] = useState(label);
+  if (label !== prevLabel) {
+    setPrevLabel(label);
     if (!isEditing) {
       setEditText(label);
     }
-  }, [label, isEditing]);
+  }
 
   // Focus input when editing starts
   useEffect(() => {
