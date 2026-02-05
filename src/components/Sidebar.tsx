@@ -16,11 +16,7 @@ export function Sidebar({ onDragStart }: SidebarProps) {
     <div className="w-64 border-r border-border bg-card flex flex-col h-full">
       {/* Header */}
       <div className="p-4 border-b border-border">
-        <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
-          <LogoIcon className="text-indigo-400" />
-          DrawIt
-        </h2>
-        <p className="text-xs text-muted-foreground mt-1">Перетащите фигуру на холст</p>
+        <p className="text-xs text-muted-foreground">Перетащите фигуру на холст</p>
       </div>
       
       {/* Shapes List */}

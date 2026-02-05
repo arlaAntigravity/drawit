@@ -39,6 +39,7 @@ import {
   AlignBottomIcon,
   SunIcon,
   MoonIcon,
+  LogoIcon,
 } from '@/components/icons';
 import { PresetModal } from '@/components/PresetModal';
 
@@ -136,6 +137,11 @@ export function Toolbar() {
   return (
     <TooltipProvider>
       <div className="h-12 border-b border-border bg-card flex items-center px-4 gap-2">
+        {/* <span className="text-sm font-medium text-foreground mr-2">DrawIt</span> */}
+        <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
+          <LogoIcon className="text-indigo-400" />
+          DrawIt
+        </h2>
         {/* New */}
         <ToolbarButton
           icon={<PlusIcon />}
