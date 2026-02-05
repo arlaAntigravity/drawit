@@ -111,8 +111,9 @@ export const useStore = create<DiagramState>()(
           id,
           type,
           position,
+          zIndex: type === 'group' ? -1 : undefined,
           data: {
-            label: type === 'text' ? 'Text' : `Node ${nextNumber}`,
+            label: type === 'text' ? 'Text' : type === 'group' ? 'Группа' : `Node ${nextNumber}`,
             textColor: '#ffffff',
             fontSize: 14,
             ...getDefaultNodeData(type),

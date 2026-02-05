@@ -198,6 +198,32 @@ export function Toolbar() {
 
         <Separator orientation="vertical" className="h-6" />
 
+        {/* Layout Menu */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm" className="gap-2" disabled={!hasNodes}>
+              <LayersIcon />
+              Раскладка
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem onClick={layoutVertical}>
+              <LayoutVerticalIcon className="mr-2" />
+              Вертикальная
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={layoutHorizontal}>
+              <LayoutHorizontalIcon className="mr-2" />
+              Горизонтальная
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={layoutTree}>
+              <LayoutTreeIcon className="mr-2" />
+              Дерево
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <Separator orientation="vertical" className="h-6" />
+
         {/* Alignment Tools */}
         <div className="flex items-center gap-0.5">
           <ToolbarButton
@@ -247,20 +273,20 @@ export function Toolbar() {
 
         <div className="flex-1" />
 
-        {/* Clear */}
-        <ToolbarButton 
-          icon={<TrashIcon />} 
-          tooltip="Очистить всё" 
-          onClick={handleClear} 
-        />
-
-        <Separator orientation="vertical" className="h-6" />
-
         <ToolbarButton
           icon={theme === 'dark' ? <SunIcon /> : <MoonIcon />}
           tooltip={theme === 'dark' ? 'Светлая тема' : 'Темная тема'}
           onClick={toggleTheme}
           data-testid="theme-toggle"
+        />
+
+        <Separator orientation="vertical" className="h-6" />
+
+        {/* Clear */}
+        <ToolbarButton 
+          icon={<TrashIcon />} 
+          tooltip="Очистить всё" 
+          onClick={handleClear} 
         />
       </div>
       <PresetModal open={presetModalOpen} onOpenChange={setPresetModalOpen} />

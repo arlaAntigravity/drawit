@@ -107,6 +107,12 @@ function CanvasInner() {
         changed = true;
       }
       
+      // Fix 3: Set zIndex for groups to be behind edges
+      if (newNode.type === 'group' && newNode.zIndex !== -1) {
+        newNode.zIndex = -1;
+        changed = true;
+      }
+      
       if (changed) hasChanges = true;
       return newNode;
     });

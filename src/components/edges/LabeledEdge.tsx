@@ -160,6 +160,7 @@ export function LabeledEdge({
         markerEnd={markerEnd}
         style={{ transition: edgeStyle.transition }}
         className={data?.animated ? 'react-flow__edge-path-animated' : ''}
+        onDoubleClick={handleDoubleClick}
       />
       
       {/* Label renderer */}
