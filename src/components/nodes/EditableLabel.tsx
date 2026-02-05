@@ -102,7 +102,7 @@ export function EditableLabel({
         color: textColor,
         fontSize,
       }}
-      className={`text-center px-2 cursor-text select-none ${className}`}
+      className={`text-center px-2 cursor-inherit select-none ${className}`}
       title="Двойной клик для редактирования"
     >
       {label}

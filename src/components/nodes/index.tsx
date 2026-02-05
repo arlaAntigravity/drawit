@@ -32,7 +32,7 @@ export const RectangleNode =
 
       return (
         <div
-          className="relative flex items-center justify-center transition-shadow"
+          className="relative flex items-center justify-center transition-shadow cursor-grab active:cursor-grabbing"
           style={{
             width: data.width,
             height:
@@ -89,7 +89,7 @@ export const RoundedRectNode =
 
       return (
         <div
-          className="relative flex items-center justify-center rounded-xl transition-shadow"
+          className="relative flex items-center justify-center rounded-xl transition-shadow cursor-grab active:cursor-grabbing"
           style={{
             width: data.width,
             height:
@@ -147,7 +147,7 @@ export const DiamondNode =
 
       return (
         <div
-          className="relative flex items-center justify-center"
+          className="relative flex items-center justify-center cursor-grab active:cursor-grabbing"
           style={{
             width: data.width,
             height:
@@ -248,7 +248,7 @@ export const EllipseNode =
 
       return (
         <div
-          className="relative flex items-center justify-center rounded-full transition-shadow"
+          className="relative flex items-center justify-center rounded-full transition-shadow cursor-grab active:cursor-grabbing"
           style={{
             width: data.width,
             height:
@@ -304,7 +304,7 @@ export const TextNode = memo(
 
     return (
       <div
-        className="relative flex items-center justify-center transition-shadow"
+        className="relative flex items-center justify-center transition-shadow cursor-grab active:cursor-grabbing"
         style={{
           width: data.width,
           minHeight:
@@ -361,7 +361,7 @@ export const CylinderNode =
 
       return (
         <div
-          className="relative flex items-center justify-center"
+          className="relative flex items-center justify-center cursor-grab active:cursor-grabbing"
           style={{
             width: data.width,
             height:
@@ -546,7 +546,7 @@ export const TriangleNode =
 
       return (
         <div
-          className="relative flex items-center justify-center"
+          className="relative flex items-center justify-center cursor-grab active:cursor-grabbing"
           style={{
             width: data.width,
             height:
@@ -641,7 +641,7 @@ export const GroupNode = memo(
 
     return (
       <div
-        className="relative rounded-lg transition-shadow"
+        className="relative rounded-lg transition-shadow cursor-grab active:cursor-grabbing"
         style={{
           width: data.width,
           height: data.height,
