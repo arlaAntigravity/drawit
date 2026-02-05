@@ -2,10 +2,9 @@ name: Build and Deploy
 
 on:
   push:
-    branches: ["*"]  # Build check on push to any branch
+    branches: ["main", "develop"]
   pull_request:
-    types: [closed]
-    branches: [main]  # Deploy on PR merge to main
+    branches: ["main"]
   workflow_dispatch:
 
 permissions:
@@ -24,26 +23,55 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Detect package manager
+        id: detect-package-manager
+        run: |
+          if [ -f "${{ github.workspace }}/yarn.lock" ]; then
+            echo "manager=yarn" >> $GITHUB_OUTPUT
+            echo "command=install" >> $GITHUB_OUTPUT
+            echo "runner=yarn" >> $GITHUB_OUTPUT
+            exit 0
+          elif [ -f "${{ github.workspace }}/package.json" ]; then
+            echo "manager=npm" >> $GITHUB_OUTPUT
+            echo "command=ci" >> $GITHUB_OUTPUT
+            echo "runner=npx --no-install" >> $GITHUB_OUTPUT
+            exit 0
+          else
+            echo "Unable to determine package manager"
+            exit 1
+          fi
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: "npm"
+          cache: ${{ steps.detect-package-manager.outputs.manager }}
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Restore cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            .next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}-
 
       - name: Install dependencies
-        run: npm ci
+        run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
 
-      - name: Build
-        run: npm run build
+      - name: Build with Next.js
+        run: ${{ steps.detect-package-manager.outputs.runner }} next build
 
       - name: Upload artifact
-        if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./out
 
   deploy:
-    if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
+    if: github.ref == 'refs/heads/main'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
