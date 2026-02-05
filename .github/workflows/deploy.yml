@@ -1,8 +1,11 @@
-name: Deploy to GitHub Pages
+name: Build and Deploy
 
 on:
   push:
-    branches: ["main"]
+    branches: ["*"]  # Build check on push to any branch
+  pull_request:
+    types: [closed]
+    branches: [main]  # Deploy on PR merge to main
   workflow_dispatch:
 
 permissions:
@@ -34,11 +37,13 @@ jobs:
         run: npm run build
 
       - name: Upload artifact
+        if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./out
 
   deploy:
+    if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
