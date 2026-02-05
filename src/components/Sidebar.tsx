@@ -32,7 +32,7 @@ export function Sidebar({ onDragStart }: SidebarProps) {
               <Button
                 key={shape.type}
                 variant="outline"
-                className="h-20 flex flex-col items-center justify-center gap-2 cursor-grab active:cursor-grabbing hover:bg-accent hover:border-primary/50 transition-all"
+                className="h-20 flex flex-col items-center justify-center gap-2 cursor-grab active:cursor-grabbing hover:bg-accent hover:border-primary/50 transition-all sidebar-item hover-lift active-push"
                 draggable
                 onDragStart={(e) => onDragStart(e, shape.type)}
               >

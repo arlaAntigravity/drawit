@@ -31,13 +31,37 @@ import {
   LayoutHorizontalIcon,
   LayoutTreeIcon,
   PlusIcon,
+  AlignLeftIcon,
+  AlignCenterHorizontalIcon,
+  AlignRightIcon,
+  AlignTopIcon,
+  AlignCenterVerticalIcon,
+  AlignBottomIcon,
+  SunIcon,
+  MoonIcon,
 } from '@/components/icons';
 import { PresetModal } from '@/components/PresetModal';
 
 export function Toolbar() {
-  const { nodes, edges, undo, redo, setNodes, setEdges, history, historyIndex } = useStore();
+  const { nodes, edges, undo, redo, setNodes, setEdges, history, historyIndex, alignNodes, selectedNodes } = useStore();
   const { layoutVertical, layoutHorizontal, layoutTree } = useAutoLayout();
   const [presetModalOpen, setPresetModalOpen] = useState(false);
+  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+
+  React.useEffect(() => {
+    const isDark = document.documentElement.classList.contains('dark');
+    setTheme(isDark ? 'dark' : 'light');
+  }, []);
+
+  const toggleTheme = useCallback(() => {
+    const newTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(newTheme);
+    if (newTheme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [theme]);
 
   const canUndo = historyIndex > 0;
   const canRedo = historyIndex < history.length - 1;
@@ -174,29 +198,52 @@ export function Toolbar() {
 
         <Separator orientation="vertical" className="h-6" />
 
-        {/* Layout Menu */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className="gap-2" disabled={!hasNodes}>
-              <LayoutVerticalIcon />
-              Раскладка
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuItem onClick={layoutVertical}>
-              <LayoutVerticalIcon className="mr-2" />
-              Вертикальная
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={layoutHorizontal}>
-              <LayoutHorizontalIcon className="mr-2" />
-              Горизонтальная
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={layoutTree}>
-              <LayoutTreeIcon className="mr-2" />
-              Дерево
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {/* Alignment Tools */}
+        <div className="flex items-center gap-0.5">
+          <ToolbarButton
+            icon={<AlignLeftIcon />}
+            tooltip="Выровнять по левому краю"
+            onClick={() => alignNodes('left')}
+            disabled={selectedNodes.length < 2}
+            data-testid="align-left"
+          />
+          <ToolbarButton
+            icon={<AlignCenterHorizontalIcon />}
+            tooltip="Выровнять по горизонтальному центру"
+            onClick={() => alignNodes('v-center')}
+            disabled={selectedNodes.length < 2}
+            data-testid="align-h-center"
+          />
+          <ToolbarButton
+            icon={<AlignRightIcon />}
+            tooltip="Выровнять по правому краю"
+            onClick={() => alignNodes('right')}
+            disabled={selectedNodes.length < 2}
+            data-testid="align-right"
+          />
+          <Separator orientation="vertical" className="h-4 mx-1" />
+          <ToolbarButton
+            icon={<AlignTopIcon />}
+            tooltip="Выровнять по верхнему краю"
+            onClick={() => alignNodes('top')}
+            disabled={selectedNodes.length < 2}
+            data-testid="align-top"
+          />
+          <ToolbarButton
+            icon={<AlignCenterVerticalIcon />}
+            tooltip="Выровнять по вертикальному центру"
+            onClick={() => alignNodes('h-center')}
+            disabled={selectedNodes.length < 2}
+            data-testid="align-v-center"
+          />
+          <ToolbarButton
+            icon={<AlignBottomIcon />}
+            tooltip="Выровнять по нижнему краю"
+            onClick={() => alignNodes('bottom')}
+            disabled={selectedNodes.length < 2}
+            data-testid="align-bottom"
+          />
+        </div>
 
         <div className="flex-1" />
 
@@ -205,6 +252,15 @@ export function Toolbar() {
           icon={<TrashIcon />} 
           tooltip="Очистить всё" 
           onClick={handleClear} 
+        />
+
+        <Separator orientation="vertical" className="h-6" />
+
+        <ToolbarButton
+          icon={theme === 'dark' ? <SunIcon /> : <MoonIcon />}
+          tooltip={theme === 'dark' ? 'Светлая тема' : 'Темная тема'}
+          onClick={toggleTheme}
+          data-testid="theme-toggle"
         />
       </div>
       <PresetModal open={presetModalOpen} onOpenChange={setPresetModalOpen} />
@@ -221,9 +277,10 @@ interface ToolbarButtonProps {
   onClick: () => void;
   disabled?: boolean;
   label?: string;
+  'data-testid'?: string;
 }
 
-function ToolbarButton({ icon, tooltip, onClick, disabled, label }: ToolbarButtonProps) {
+function ToolbarButton({ icon, tooltip, onClick, disabled, label, 'data-testid': testId }: ToolbarButtonProps) {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
@@ -233,6 +290,7 @@ function ToolbarButton({ icon, tooltip, onClick, disabled, label }: ToolbarButto
           onClick={onClick} 
           disabled={disabled}
           className={label ? 'gap-2' : ''}
+          data-testid={testId}
         >
           {icon}
           {label}

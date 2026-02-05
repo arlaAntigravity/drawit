@@ -34,6 +34,8 @@ export interface DiagramState {
   setNodes: (nodes: Node<NodeData>[]) => void;
   addNode: (type: NodeType, position: XYPosition) => void;
   updateNodeData: (id: string, data: Partial<NodeData>) => void;
+  duplicateNode: (id: string) => void;
+  alignNodes: (direction: 'left' | 'right' | 'top' | 'bottom' | 'v-center' | 'h-center') => void;
   setNodeParent: (nodeId: string, parentId: string | null) => void;
   onNodesChange: (changes: NodeChange[]) => void;
   
@@ -129,7 +131,67 @@ export const useStore = create<DiagramState>()(
         });
         get().pushHistory();
       },
-      
+
+      duplicateNode: (id) => {
+        const nodes = get().nodes;
+        const node = nodes.find((n) => n.id === id);
+        if (!node) return;
+
+        const newId = generateNodeId();
+        const newNode: Node<NodeData> = {
+          ...JSON.parse(JSON.stringify(node)),
+          id: newId,
+          position: {
+            x: node.position.x + 20,
+            y: node.position.y + 20,
+          },
+          selected: true,
+        };
+
+        set({
+          nodes: [...nodes.map(n => ({ ...n, selected: false })), newNode],
+          selectedNodes: [newId],
+        });
+        get().pushHistory();
+      },
+      alignNodes: (direction) => {
+        const { nodes, selectedNodes } = get();
+        if (selectedNodes.length < 2) return;
+
+        const nodesToAlign = nodes.filter((n) => selectedNodes.includes(n.id));
+        const bounds = {
+          minX: Math.min(...nodesToAlign.map((n) => n.position.x)),
+          maxX: Math.max(...nodesToAlign.map((n) => n.position.x + (n.data?.width || 100))),
+          minY: Math.min(...nodesToAlign.map((n) => n.position.y)),
+          maxY: Math.max(...nodesToAlign.map((n) => n.position.y + (n.data?.height || 50))),
+        };
+
+        const centerX = (bounds.minX + bounds.maxX) / 2;
+        const centerY = (bounds.minY + bounds.maxY) / 2;
+
+        const newNodes = nodes.map((n) => {
+          if (!selectedNodes.includes(n.id)) return n;
+
+          const width = n.data?.width || 100;
+          const height = n.data?.height || 50;
+          let { x, y } = n.position;
+
+          switch (direction) {
+            case 'left': x = bounds.minX; break;
+            case 'right': x = bounds.maxX - width; break;
+            case 'top': y = bounds.minY; break;
+            case 'bottom': y = bounds.maxY - height; break;
+            case 'v-center': x = centerX - width / 2; break;
+            case 'h-center': y = centerY - height / 2; break;
+          }
+
+          return { ...n, position: { x, y } };
+        });
+
+        set({ nodes: newNodes });
+        get().pushHistory();
+      },
+
       setNodeParent: (nodeId, parentId) => {
         const nodes = get().nodes;
         const node = nodes.find(n => n.id === nodeId);

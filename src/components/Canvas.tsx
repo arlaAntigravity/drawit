@@ -22,12 +22,29 @@ import { edgeTypes } from '@/components/edges';
 import { SnapGuides } from '@/components/SnapGuides';
 import { useSnapGuides, SnapGuide } from '@/hooks/useSnapGuides';
 import { 
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+  ContextMenuSeparator,
+  ContextMenuLabel,
+  ContextMenuShortcut,
+} from '@/components/ui/context-menu';
+import { 
   EDGE_STYLE, 
   SELECTED_EDGE_COLOR, 
   SNAP_GRID, 
   BACKGROUND_SETTINGS,
   NODE_STYLES 
 } from '@/lib/constants';
+import { 
+  TrashIcon, 
+  CopyIcon, 
+  PlusIcon,
+  LayersIcon,
+  UndoIcon,
+  RedoIcon
+} from '@/components/icons';
 
 // ============================================================================
 // MiniMap Color Function
@@ -62,7 +79,11 @@ function CanvasInner() {
     undo,
     redo,
     setNodes,
+    duplicateNode,
   } = useStore();
+
+  const [menuType, setMenuType] = React.useState<'pane' | 'node' | 'edge'>('pane');
+  const [menuTargetId, setMenuTargetId] = React.useState<string | null>(null);
   
   // Migration to fix stuck nodes and orphans
   React.useEffect(() => {
@@ -131,6 +152,48 @@ function CanvasInner() {
     },
     [screenToFlowPosition, addNode]
   );
+
+  const onNodeContextMenu = useCallback(
+    (event: React.MouseEvent, node: Node) => {
+      setMenuType('node');
+      setMenuTargetId(node.id);
+    },
+    []
+  );
+
+  const onEdgeContextMenu = useCallback(
+    (event: React.MouseEvent, edge: any) => {
+      setMenuType('edge');
+      setMenuTargetId(edge.id);
+    },
+    []
+  );
+
+  const onPaneContextMenu = useCallback(
+    (event: React.MouseEvent) => {
+      setMenuType('pane');
+      setMenuTargetId(null);
+    },
+    []
+  );
+
+  const handleMenuAction = useCallback((action: string) => {
+    if (action === 'delete') {
+      if (menuTargetId) {
+        if (menuType === 'node') {
+          setNodes(nodes.filter(n => n.id !== menuTargetId));
+        } else {
+          // ReactFlow handles edge deletion if we update edges state
+          // but we use useStore actions
+          useStore.getState().setEdges(edges.filter(e => e.id !== menuTargetId));
+        }
+      } else {
+        deleteSelected();
+      }
+    } else if (action === 'duplicate' && menuTargetId && menuType === 'node') {
+      duplicateNode(menuTargetId);
+    }
+  }, [menuType, menuTargetId, nodes, edges, setNodes, deleteSelected, duplicateNode]);
 
   const onSelectionChange = useCallback(
     ({ nodes, edges }: { nodes: { id: string }[]; edges: { id: string }[] }) => {
@@ -277,54 +340,113 @@ function CanvasInner() {
   );
 
   return (
-    <div
-      ref={reactFlowWrapper}
-      className="flex-1 h-full relative"
-    >
-      <ReactFlow
-        nodes={safeNodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        onDragOver={onDragOver}
-        onDrop={onDrop}
-        onSelectionChange={onSelectionChange}
-        onNodeDrag={onNodeDrag}
-        onNodeDragStop={onNodeDragStop}
-        nodeTypes={nodeTypes}
-        edgeTypes={edgeTypes}
-        selectionMode={SelectionMode.Partial}
-        connectionMode={ConnectionMode.Loose}
-        fitView
-        snapToGrid
-        snapGrid={SNAP_GRID}
-        defaultEdgeOptions={{
-          type: 'smoothstep',
-          style: EDGE_STYLE,
-        }}
-        className="bg-background"
-      >
-        <Background 
-          variant={BackgroundVariant.Dots} 
-          gap={BACKGROUND_SETTINGS.gap} 
-          size={BACKGROUND_SETTINGS.size} 
-          color={BACKGROUND_SETTINGS.color} 
-        />
-        <Controls 
-          className="!bg-card !border-border !shadow-lg"
-          showInteractive={false}
-        />
-        <MiniMap 
-          nodeColor={getNodeColor}
-          maskColor="rgba(0, 0, 0, 0.8)"
-          className="!bg-card !border-border"
-        />
-        {/* Snap Guides */}
-        <SnapGuides guides={guides} />
-        {/* Custom marker for selected edges */}
-        <SelectedEdgeMarker color={SELECTED_EDGE_COLOR} />
-      </ReactFlow>
+    <div className="flex-1 overflow-hidden relative" ref={reactFlowWrapper}>
+      <ContextMenu>
+        <ContextMenuTrigger className="h-full w-full">
+          <ReactFlow
+            nodes={safeNodes}
+            edges={edges}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
+            onConnect={onConnect}
+            onDragOver={onDragOver}
+            onDrop={onDrop}
+            onSelectionChange={onSelectionChange}
+            onNodeDrag={onNodeDrag}
+            onNodeDragStop={onNodeDragStop}
+            onNodeContextMenu={onNodeContextMenu}
+            onEdgeContextMenu={onEdgeContextMenu}
+            onPaneContextMenu={onPaneContextMenu}
+            nodeTypes={nodeTypes}
+            edgeTypes={edgeTypes}
+            selectionMode={SelectionMode.Partial}
+            connectionMode={ConnectionMode.Loose}
+            fitView
+            snapToGrid
+            snapGrid={SNAP_GRID}
+            defaultEdgeOptions={{
+              type: 'labeled',
+              style: EDGE_STYLE,
+            }}
+            className="bg-background"
+            deleteKeyCode={null}
+          >
+            <Background 
+              variant={BackgroundVariant.Dots} 
+              gap={BACKGROUND_SETTINGS.gap} 
+              size={BACKGROUND_SETTINGS.size} 
+              color={BACKGROUND_SETTINGS.color} 
+            />
+            <Controls 
+              className="!bg-card !border-border !shadow-lg"
+              showInteractive={false}
+            />
+            <MiniMap 
+              nodeColor={getNodeColor}
+              maskColor="rgba(0, 0, 0, 0.2)"
+              className="!bg-card !border-border"
+            />
+            <SnapGuides guides={guides} />
+          </ReactFlow>
+        </ContextMenuTrigger>
+
+        <ContextMenuContent className="w-56">
+          {menuType === 'node' && (
+            <>
+              <ContextMenuLabel>Узел</ContextMenuLabel>
+              <ContextMenuSeparator />
+              <ContextMenuItem onClick={() => handleMenuAction('duplicate')}>
+                <CopyIcon className="mr-2" />
+                Дублировать
+                <ContextMenuShortcut>Ctrl+D</ContextMenuShortcut>
+              </ContextMenuItem>
+              <ContextMenuItem variant="destructive" onClick={() => handleMenuAction('delete')}>
+                <TrashIcon className="mr-2" />
+                Удалить
+                <ContextMenuShortcut>Del</ContextMenuShortcut>
+              </ContextMenuItem>
+            </>
+          )}
+
+          {menuType === 'edge' && (
+            <>
+              <ContextMenuLabel>Связь</ContextMenuLabel>
+              <ContextMenuSeparator />
+              <ContextMenuItem variant="destructive" onClick={() => handleMenuAction('delete')}>
+                <TrashIcon className="mr-2" />
+                Удалить
+              </ContextMenuItem>
+            </>
+          )}
+
+          {menuType === 'pane' && (
+            <>
+              <ContextMenuLabel>Полотно</ContextMenuLabel>
+              <ContextMenuSeparator />
+              <ContextMenuItem onClick={() => undo()}>
+                <UndoIcon className="mr-2" />
+                Отменить
+                <ContextMenuShortcut>Ctrl+Z</ContextMenuShortcut>
+              </ContextMenuItem>
+              <ContextMenuItem onClick={() => redo()}>
+                <RedoIcon className="mr-2" />
+                Повторить
+                <ContextMenuShortcut>Ctrl+Y</ContextMenuShortcut>
+              </ContextMenuItem>
+              <ContextMenuSeparator />
+              <ContextMenuLabel>Добавить быстрые фигуры</ContextMenuLabel>
+              <ContextMenuItem onClick={() => addNode('rectangle', screenToFlowPosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 }))}>
+                <PlusIcon className="mr-2" />
+                Прямоугольник
+              </ContextMenuItem>
+              <ContextMenuItem onClick={() => addNode('roundedRect', screenToFlowPosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 }))}>
+                <PlusIcon className="mr-2" />
+                Закругленный блок
+              </ContextMenuItem>
+            </>
+          )}
+        </ContextMenuContent>
+      </ContextMenu>
     </div>
   );
 }
