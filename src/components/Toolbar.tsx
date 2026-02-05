@@ -136,8 +136,6 @@ export function Toolbar() {
   return (
     <TooltipProvider>
       <div className="h-12 border-b border-border bg-card flex items-center px-4 gap-2">
-        <span className="text-sm font-medium text-foreground mr-2">DrawIt</span>
-        
         {/* New */}
         <ToolbarButton
           icon={<PlusIcon />}
