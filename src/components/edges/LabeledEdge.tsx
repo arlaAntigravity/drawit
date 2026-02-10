@@ -65,17 +65,19 @@ export function LabeledEdge({
     data?.animated ? '5 5' :
     undefined;
 
-  // Selected color - only change color, keep same strokeWidth
+  // Always show the real color; indicate selection with glow + thicker stroke
   const baseStrokeColor = data?.stroke || (style.stroke as string || EDGE_STYLE.stroke);
-  const strokeColor = selected ? SELECTED_EDGE_COLOR : baseStrokeColor;
-  const strokeWidth = data?.strokeWidth || (style.strokeWidth as number || EDGE_STYLE.strokeWidth);
+  const baseStrokeWidth = data?.strokeWidth || (style.strokeWidth as number || EDGE_STYLE.strokeWidth);
+  const strokeColor = baseStrokeColor;
+  const strokeWidth = selected ? baseStrokeWidth + 1 : baseStrokeWidth;
 
   const edgeStyle = {
     ...style,
     strokeDasharray,
     stroke: strokeColor,
     strokeWidth,
-    transition: 'stroke 0.2s',
+    transition: 'stroke 0.2s, filter 0.2s',
+    filter: selected ? `drop-shadow(0 0 4px ${baseStrokeColor})` : 'none',
   };
 
   // Custom marker that changes color with selection
