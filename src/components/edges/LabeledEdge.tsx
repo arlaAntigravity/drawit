@@ -8,12 +8,7 @@ import {
 } from 'reactflow';
 import { useStore } from '@/store/useStore';
 import { EDGE_STYLE, SELECTED_EDGE_COLOR } from '@/lib/constants';
-
-interface LabeledEdgeData {
-  label?: string;
-  animated?: boolean;
-  strokeStyle?: 'solid' | 'dashed' | 'dotted';
-}
+import { EdgeData } from '@/lib/types';
 
 export function LabeledEdge({
   id,
@@ -26,15 +21,14 @@ export function LabeledEdge({
   style = {},
   data,
   selected,
-}: EdgeProps<LabeledEdgeData>) {
+}: EdgeProps<EdgeData>) {
   const [isEditing, setIsEditing] = useState(false);
   const [labelText, setLabelText] = useState(data?.label || '');
   const inputRef = useRef<HTMLInputElement>(null);
   
   // Get store actions
-  const edges = useStore((state) => state.edges);
-  const setEdges = useStore((state) => state.setEdges);
-  const pushHistory = useStore((state) => state.pushHistory);
+  const updateEdgeData = useStore((state) => state.updateEdgeData);
+  const commitEdgeData = useStore((state) => state.commitEdgeData);
 
   // Sync label with data
   const [prevDataLabel, setPrevDataLabel] = useState(data?.label);
@@ -63,20 +57,24 @@ export function LabeledEdge({
     borderRadius: 8,
   });
 
-  // Apply stroke style
+  // Apply properties from data or defaults
+  // Animation requires strokeDasharray to show marching ants
   const strokeDasharray = 
     data?.strokeStyle === 'dashed' ? '8 4' :
     data?.strokeStyle === 'dotted' ? '2 4' :
+    data?.animated ? '5 5' :
     undefined;
 
   // Selected color - only change color, keep same strokeWidth
-  const strokeColor = selected ? SELECTED_EDGE_COLOR : (style.stroke as string || EDGE_STYLE.stroke);
+  const baseStrokeColor = data?.stroke || (style.stroke as string || EDGE_STYLE.stroke);
+  const strokeColor = selected ? SELECTED_EDGE_COLOR : baseStrokeColor;
+  const strokeWidth = data?.strokeWidth || (style.strokeWidth as number || EDGE_STYLE.strokeWidth);
 
   const edgeStyle = {
     ...style,
     strokeDasharray,
     stroke: strokeColor,
-    strokeWidth: style.strokeWidth || EDGE_STYLE.strokeWidth,
+    strokeWidth,
     transition: 'stroke 0.2s',
   };
 
@@ -90,16 +88,11 @@ export function LabeledEdge({
 
   const saveLabel = useCallback((newLabel: string) => {
     const trimmedLabel = newLabel.trim();
-    // Update edge data in store
-    setEdges(
-      edges.map((edge) =>
-        edge.id === id
-          ? { ...edge, data: { ...edge.data, label: trimmedLabel } }
-          : edge
-      )
-    );
-    pushHistory();
-  }, [edges, id, setEdges, pushHistory]);
+    if (trimmedLabel !== data?.label) {
+      updateEdgeData(id, { label: trimmedLabel });
+      commitEdgeData();
+    }
+  }, [data?.label, id, updateEdgeData, commitEdgeData]);
 
   const handleBlur = useCallback(() => {
     saveLabel(labelText);
@@ -122,7 +115,6 @@ export function LabeledEdge({
 
   return (
     <>
-      {/* Custom marker definition - same size, only color changes */}
       <defs>
         <marker
           id={`arrow-${id}`}
@@ -141,7 +133,6 @@ export function LabeledEdge({
         </marker>
       </defs>
       
-      {/* Invisible hit area for double-click */}
       <path
         d={edgePath}
         fill="none"
@@ -151,7 +142,6 @@ export function LabeledEdge({
         onDoubleClick={handleDoubleClick}
       />
       
-      {/* Visible edge */}
       <path
         d={edgePath}
         fill="none"
@@ -159,12 +149,13 @@ export function LabeledEdge({
         strokeWidth={edgeStyle.strokeWidth}
         strokeDasharray={edgeStyle.strokeDasharray}
         markerEnd={markerEnd}
-        style={{ transition: edgeStyle.transition }}
-        className={data?.animated ? 'react-flow__edge-path-animated' : ''}
+        style={{
+          transition: edgeStyle.transition,
+          ...(data?.animated ? { animation: 'dashdraw 0.5s linear infinite' } : {}),
+        }}
         onDoubleClick={handleDoubleClick}
       />
       
-      {/* Label renderer */}
       <EdgeLabelRenderer>
         <div
           style={{

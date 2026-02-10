@@ -26,10 +26,19 @@ export interface NodeData {
   fontSize: number;
 }
 
+// Edge Data
+export interface EdgeData {
+  label: string;
+  animated: boolean;
+  strokeStyle: 'solid' | 'dashed' | 'dotted';
+  stroke?: string;
+  strokeWidth?: number;
+}
+
 // History State
 export interface HistoryEntry {
   nodes: Node<NodeData>[];
-  edges: Edge[];
+  edges: Edge<EdgeData>[];
 }
 
 // Node Style Configuration

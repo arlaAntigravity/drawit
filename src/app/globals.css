@@ -237,4 +237,9 @@ button:hover {
   box-shadow: none !important;
 }
 
-
+/* Animated edge marching ants */
+@keyframes dashdraw {
+  to {
+    stroke-dashoffset: -10;
+  }
+}
