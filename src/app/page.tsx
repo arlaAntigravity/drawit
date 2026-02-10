@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useCallback } from 'react';
+import { ReactFlowProvider } from 'reactflow';
 import { Sidebar } from '@/components/Sidebar';
 import { Canvas } from '@/components/Canvas';
 import { PropertiesPanel } from '@/components/PropertiesPanel';
@@ -14,13 +15,15 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="h-screen flex flex-col bg-background">
-      <Toolbar />
-      <div className="flex-1 flex overflow-hidden">
-        <Sidebar onDragStart={onDragStart} />
-        <Canvas />
-        <PropertiesPanel />
+    <ReactFlowProvider>
+      <div className="h-screen flex flex-col bg-background">
+        <Toolbar />
+        <div className="flex-1 flex overflow-hidden">
+          <Sidebar onDragStart={onDragStart} />
+          <Canvas />
+          <PropertiesPanel />
+        </div>
       </div>
-    </div>
+    </ReactFlowProvider>
   );
 }

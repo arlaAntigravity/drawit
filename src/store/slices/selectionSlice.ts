@@ -1,3 +1,6 @@
+import { Node } from 'reactflow';
+import { NodeData } from '@/lib/types';
+import { generateNodeId } from './nodeSlice';
 import type { DiagramState } from '../useStore';
 
 // ============================================================================
@@ -7,10 +10,13 @@ import type { DiagramState } from '../useStore';
 export interface SelectionSlice {
   selectedNodes: string[];
   selectedEdges: string[];
+  clipboard: Node<NodeData>[];
   setSelectedNodes: (ids: string[]) => void;
   setSelectedEdges: (ids: string[]) => void;
   clearSelection: () => void;
   deleteSelected: () => void;
+  copySelected: () => void;
+  pasteClipboard: () => void;
 }
 
 export const createSelectionSlice = (
@@ -19,6 +25,7 @@ export const createSelectionSlice = (
 ): SelectionSlice => ({
   selectedNodes: [],
   selectedEdges: [],
+  clipboard: [],
 
   setSelectedNodes: (ids) => set({ selectedNodes: ids }),
   setSelectedEdges: (ids) => set({ selectedEdges: ids }),
@@ -51,6 +58,44 @@ export const createSelectionSlice = (
       ),
       selectedNodes: [],
       selectedEdges: [],
+    });
+    get().pushHistory();
+  },
+
+  copySelected: () => {
+    const { selectedNodes, nodes } = get();
+    if (selectedNodes.length === 0) return;
+    
+    const copied = nodes
+      .filter((n) => selectedNodes.includes(n.id))
+      .map((n) => JSON.parse(JSON.stringify(n)));
+    
+    set({ clipboard: copied });
+  },
+
+  pasteClipboard: () => {
+    const { clipboard, nodes } = get();
+    if (clipboard.length === 0) return;
+
+    const OFFSET = 30;
+    const idMap = new Map<string, string>();
+
+    // Create new nodes with new IDs and offset positions
+    const newNodes = clipboard.map((n) => {
+      const newId = generateNodeId();
+      idMap.set(n.id, newId);
+      return {
+        ...JSON.parse(JSON.stringify(n)),
+        id: newId,
+        position: { x: n.position.x + OFFSET, y: n.position.y + OFFSET },
+        selected: true,
+      };
+    });
+
+    // Deselect existing, add pasted
+    set({
+      nodes: [...nodes.map((n) => ({ ...n, selected: false })), ...newNodes],
+      selectedNodes: newNodes.map((n) => n.id),
     });
     get().pushHistory();
   },
