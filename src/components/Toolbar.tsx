@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useCallback, useState } from 'react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import {
@@ -16,6 +17,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useStore } from '@/store/useStore';
+import { useStore as useFlowStore, useReactFlow } from 'reactflow';
 import { useAutoLayout } from '@/hooks/useAutoLayout';
 import { toPng, toSvg } from 'html-to-image';
 import {
@@ -40,12 +42,18 @@ import {
   SunIcon,
   MoonIcon,
   LogoIcon,
+  ZoomInIcon,
+  ZoomOutIcon,
+  MaximizeIcon,
 } from '@/components/icons';
 import { PresetModal } from '@/components/PresetModal';
 
 export function Toolbar() {
   const { nodes, edges, undo, redo, setNodes, setEdges, history, historyIndex, alignNodes, selectedNodes } = useStore();
   const { layoutVertical, layoutHorizontal, layoutTree } = useAutoLayout();
+  const { zoomIn, zoomOut, fitView } = useReactFlow();
+  const zoom = useFlowStore((s) => s.transform[2]);
+  
   const [presetModalOpen, setPresetModalOpen] = useState(false);
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
 
@@ -87,8 +95,9 @@ export function Toolbar() {
       });
 
       downloadFile(dataUrl, 'diagram.png');
+      toast.success('PNG экспортирован');
     } catch (err) {
-      console.error('Failed to export PNG:', err);
+      toast.error('Ошибка экспорта PNG');
     }
   }, [nodes]);
 
@@ -99,8 +108,9 @@ export function Toolbar() {
     try {
       const dataUrl = await toSvg(element, { backgroundColor: '#0f0f17' });
       downloadFile(dataUrl, 'diagram.svg');
+      toast.success('SVG экспортирован');
     } catch (err) {
-      console.error('Failed to export SVG:', err);
+      toast.error('Ошибка экспорта SVG');
     }
   }, [nodes]);
 
@@ -110,6 +120,7 @@ export function Toolbar() {
     const url = URL.createObjectURL(blob);
     downloadFile(url, 'diagram.json');
     URL.revokeObjectURL(url);
+    toast.success('JSON экспортирован');
   }, [nodes, edges]);
 
   const handleImportJSON = useCallback(() => {
@@ -126,9 +137,12 @@ export function Toolbar() {
         if (data.nodes && data.edges) {
           setNodes(data.nodes);
           setEdges(data.edges);
+          toast.success('Диаграмма загружена');
+        } else {
+          toast.error('Неверный формат файла');
         }
       } catch (err) {
-        console.error('Failed to import JSON:', err);
+        toast.error('Ошибка импорта JSON');
       }
     };
     input.click();
@@ -138,6 +152,7 @@ export function Toolbar() {
     if (confirm('Очистить все элементы?')) {
       setNodes([]);
       setEdges([]);
+      toast('Холст очищен');
     }
   }, [setNodes, setEdges]);
 
@@ -279,6 +294,30 @@ export function Toolbar() {
             onClick={() => alignNodes('bottom')}
             disabled={selectedNodes.length < 2}
             data-testid="align-bottom"
+          />
+        </div>
+
+        <Separator orientation="vertical" className="h-6" />
+
+        {/* Zoom Controls */}
+        <div className="flex items-center gap-1">
+          <ToolbarButton
+            icon={<ZoomOutIcon />}
+            tooltip="Уменьшить"
+            onClick={() => zoomOut()}
+          />
+          <span className="text-[10px] font-mono w-10 text-center text-muted-foreground">
+            {Math.round(zoom * 100)}%
+          </span>
+          <ToolbarButton
+            icon={<ZoomInIcon />}
+            tooltip="Увеличить"
+            onClick={() => zoomIn()}
+          />
+          <ToolbarButton
+            icon={<MaximizeIcon />}
+            tooltip="По размеру (Shift+1)"
+            onClick={() => fitView({ padding: 0.2, duration: 400 })}
           />
         </div>
 
