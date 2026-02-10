@@ -1,36 +1,65 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# DrawIt — Редактор диаграмм
 
-## Getting Started
+Визуальный редактор диаграмм в браузере. Создавайте блок-схемы, UML-диаграммы, сетевые топологии и другие схемы с помощью drag-and-drop.
 
-First, run the development server:
+🔗 **[Демо](https://arlaantigravity.github.io/drawit/)**
+
+## Возможности
+
+- 🎨 **8 типов фигур** — прямоугольник, скруглённый, ромб, эллипс, текст, цилиндр, треугольник, группа (swimlane)
+- 🔗 **Связи** — подписанные рёбра с inline-редактированием, стрелки, пунктир, анимация
+- 📐 **Snap-to-grid & Snap-to-guides** — точное выравнивание при перетаскивании
+- 🔄 **Undo / Redo** — полная история действий (Ctrl+Z / Ctrl+Y)
+- 📦 **Группировка** — swimlane-контейнеры для организации нод
+- 🎯 **Выравнивание** — по левому/правому/верхнему/нижнему краю и по центру
+- 📊 **Авто-раскладка** — вертикальная, горизонтальная, дерево (Dagre)
+- 💾 **Экспорт** — PNG, SVG, JSON
+- 📂 **Импорт** — загрузка диаграмм из JSON
+- 📋 **Шаблоны** — готовые пресеты: блок-схема, UML, сеть и др.
+- 🌙 **Тёмная / Светлая тема** — с сохранением в localStorage
+- ✏️ **Настройка свойств** — цвета, размеры, шрифт, толщина обводки
+- 🖱️ **Контекстные меню** — для нод, рёбер и холста
+
+## Стек технологий
+
+| Технология | Назначение |
+|---|---|
+| [Next.js 16](https://nextjs.org/) | Фреймворк |
+| [React 19](https://react.dev/) | UI |
+| [TypeScript](https://www.typescriptlang.org/) | Типизация |
+| [ReactFlow 11](https://reactflow.dev/) | Canvas & Nodes |
+| [Zustand 5](https://zustand-demo.pmnd.rs/) | State Management |
+| [Tailwind CSS 4](https://tailwindcss.com/) | Стили |
+| [Radix UI](https://www.radix-ui.com/) | UI компоненты |
+| [Dagre](https://github.com/dagrejs/dagre) | Авто-раскладка |
+| [Playwright](https://playwright.dev/) | E2E тесты |
+
+## Быстрый старт
 
 ```bash
+# Установка зависимостей
+npm install
+
+# Запуск dev-сервера
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
+# Открыть http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Тестирование
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+# E2E тесты (Playwright)
+npx playwright test
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# С UI
+npx playwright test --ui
+```
 
-## Learn More
+## Деплой
 
-To learn more about Next.js, take a look at the following resources:
+Автоматический деплой на GitHub Pages через GitHub Actions при пуше в `main`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Лицензия
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT
