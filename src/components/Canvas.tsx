@@ -79,6 +79,9 @@ function CanvasInner() {
     redo,
     setNodes,
     duplicateNode,
+    copySelected,
+    pasteClipboard,
+    selectedNodes,
   } = useStore();
 
   const [menuType, setMenuType] = React.useState<'pane' | 'node' | 'edge'>('pane');
@@ -240,12 +243,26 @@ function CanvasInner() {
           event.preventDefault();
           redo();
         }
+        if (event.code === 'KeyC') {
+          event.preventDefault();
+          copySelected();
+        }
+        if (event.code === 'KeyV') {
+          event.preventDefault();
+          pasteClipboard();
+        }
+        if (event.code === 'KeyD') {
+          event.preventDefault();
+          if (selectedNodes.length > 0) {
+            duplicateNode(selectedNodes[0]);
+          }
+        }
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [deleteSelected, undo, redo]);
+  }, [deleteSelected, undo, redo, copySelected, pasteClipboard, duplicateNode, selectedNodes]);
 
   // Snap guides handlers
   const onNodeDrag: NodeDragHandler = useCallback(
@@ -463,10 +480,4 @@ function CanvasInner() {
 // ============================================================================
 // Canvas Export
 // ============================================================================
-export function Canvas() {
-  return (
-    <ReactFlowProvider>
-      <CanvasInner />
-    </ReactFlowProvider>
-  );
-}
+export { CanvasInner as Canvas };
