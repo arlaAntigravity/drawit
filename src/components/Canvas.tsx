@@ -83,9 +83,12 @@ function CanvasInner() {
 
   const [menuType, setMenuType] = React.useState<'pane' | 'node' | 'edge'>('pane');
   const [menuTargetId, setMenuTargetId] = React.useState<string | null>(null);
+  const migrationDone = React.useRef(false);
   
-  // Migration to fix stuck nodes and orphans
+  // Migration to fix stuck nodes and orphans (runs once)
   React.useEffect(() => {
+    if (migrationDone.current) return;
+    migrationDone.current = true;
     let hasChanges = false;
     const existingNodeIds = new Set(nodes.map(n => n.id));
     

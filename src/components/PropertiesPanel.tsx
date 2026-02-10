@@ -11,7 +11,7 @@ import { ColorPicker } from '@/components/ui/color-picker';
 import { SliderField } from '@/components/ui/slider-field';
 
 export function PropertiesPanel() {
-  const { nodes, selectedNodes, updateNodeData } = useStore();
+  const { nodes, selectedNodes, updateNodeData, commitNodeData } = useStore();
   
   const selectedNode = nodes.find((n) => selectedNodes.includes(n.id));
   
@@ -23,6 +23,11 @@ export function PropertiesPanel() {
 
   const handleChange = (key: keyof NodeData, value: string | number) => {
     updateNodeData(selectedNode.id, { [key]: value });
+  };
+
+  const handleColorChange = (key: keyof NodeData, value: string) => {
+    updateNodeData(selectedNode.id, { [key]: value });
+    commitNodeData();
   };
 
   return (
@@ -43,6 +48,7 @@ export function PropertiesPanel() {
               id="label"
               value={data.label}
               onChange={(e) => handleChange('label', e.target.value)}
+              onBlur={commitNodeData}
               className="bg-background"
             />
           </div>
@@ -55,14 +61,14 @@ export function PropertiesPanel() {
               label="Цвет заливки"
               value={data.backgroundColor}
               presets={COLOR_PRESETS}
-              onChange={(color) => handleChange('backgroundColor', color)}
+              onChange={(color) => handleColorChange('backgroundColor', color)}
             />
 
             <ColorPicker
               label="Цвет обводки"
               value={data.borderColor}
               presets={COLOR_PRESETS}
-              onChange={(color) => handleChange('borderColor', color)}
+              onChange={(color) => handleColorChange('borderColor', color)}
             />
 
             <div className="space-y-2">
@@ -71,6 +77,7 @@ export function PropertiesPanel() {
                 type="color"
                 value={data.textColor}
                 onChange={(e) => handleChange('textColor', e.target.value)}
+                onBlur={commitNodeData}
                 className="w-full h-8 cursor-pointer"
               />
             </div>
@@ -87,6 +94,7 @@ export function PropertiesPanel() {
               max={300}
               step={10}
               onChange={(v) => handleChange('width', v)}
+              onCommit={commitNodeData}
             />
 
             <SliderField
@@ -96,6 +104,7 @@ export function PropertiesPanel() {
               max={200}
               step={10}
               onChange={(v) => handleChange('height', v)}
+              onCommit={commitNodeData}
             />
 
             <SliderField
@@ -105,6 +114,7 @@ export function PropertiesPanel() {
               max={8}
               step={1}
               onChange={(v) => handleChange('borderWidth', v)}
+              onCommit={commitNodeData}
             />
 
             <SliderField
@@ -114,6 +124,7 @@ export function PropertiesPanel() {
               max={32}
               step={1}
               onChange={(v) => handleChange('fontSize', v)}
+              onCommit={commitNodeData}
             />
           </div>
         </div>

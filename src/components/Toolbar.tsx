@@ -50,13 +50,20 @@ export function Toolbar() {
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
 
   React.useEffect(() => {
-    const isDark = document.documentElement.classList.contains('dark');
-    setTheme(isDark ? 'dark' : 'light');
+    const saved = localStorage.getItem('drawit-theme') as 'dark' | 'light' | null;
+    const initialTheme = saved || 'dark';
+    setTheme(initialTheme);
+    if (initialTheme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
   }, []);
 
   const toggleTheme = useCallback(() => {
     const newTheme = theme === 'dark' ? 'light' : 'dark';
     setTheme(newTheme);
+    localStorage.setItem('drawit-theme', newTheme);
     if (newTheme === 'dark') {
       document.documentElement.classList.add('dark');
     } else {

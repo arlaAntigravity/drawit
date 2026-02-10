@@ -12,6 +12,7 @@ interface SliderFieldProps {
   step?: number;
   unit?: string;
   onChange: (value: number) => void;
+  onCommit?: () => void;
 }
 
 export function SliderField({ 
@@ -21,7 +22,8 @@ export function SliderField({
   max, 
   step = 1, 
   unit = 'px',
-  onChange 
+  onChange,
+  onCommit,
 }: SliderFieldProps) {
   return (
     <div className="space-y-2">
@@ -32,6 +34,7 @@ export function SliderField({
       <Slider
         value={[value]}
         onValueChange={([v]) => onChange(v)}
+        onValueCommit={onCommit ? () => onCommit() : undefined}
         min={min}
         max={max}
         step={step}
