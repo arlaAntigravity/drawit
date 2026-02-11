@@ -6,6 +6,7 @@ import { Sidebar } from '@/components/Sidebar';
 import { Canvas } from '@/components/Canvas';
 import { PropertiesPanel } from '@/components/PropertiesPanel';
 import { Toolbar } from '@/components/Toolbar';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { NodeType } from '@/lib/types';
 
 export default function Home() {
@@ -20,10 +21,13 @@ export default function Home() {
         <Toolbar />
         <div className="flex-1 flex overflow-hidden">
           <Sidebar onDragStart={onDragStart} />
-          <Canvas />
+          <ErrorBoundary>
+            <Canvas />
+          </ErrorBoundary>
           <PropertiesPanel />
         </div>
       </div>
     </ReactFlowProvider>
   );
 }
+
