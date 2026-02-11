@@ -47,6 +47,7 @@ import {
   MaximizeIcon,
 } from '@/components/icons';
 import { PresetModal } from '@/components/PresetModal';
+import { THEME_COLOR_MAP, THEME_TEXT_COLOR_MAP } from '@/lib/constants';
 
 export function Toolbar() {
   const { nodes, edges, undo, redo, setNodes, setEdges, history, historyIndex, alignNodes, selectedNodes } = useStore();
@@ -77,7 +78,27 @@ export function Toolbar() {
     } else {
       document.documentElement.classList.remove('dark');
     }
-  }, [theme]);
+
+    // Swap node colors to match new theme
+    const updatedNodes = nodes.map((node) => {
+      const bg = node.data.backgroundColor;
+      const text = node.data.textColor;
+      const newBg = THEME_COLOR_MAP[bg];
+      const newText = THEME_TEXT_COLOR_MAP[text];
+      if (newBg || newText) {
+        return {
+          ...node,
+          data: {
+            ...node.data,
+            ...(newBg && { backgroundColor: newBg }),
+            ...(newText && { textColor: newText }),
+          },
+        };
+      }
+      return node;
+    });
+    setNodes(updatedNodes);
+  }, [theme, nodes, setNodes]);
 
   const canUndo = historyIndex > 0;
   const canRedo = historyIndex < history.length - 1;

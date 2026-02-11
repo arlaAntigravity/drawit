@@ -151,3 +151,18 @@ export const BACKGROUND_SETTINGS =
 
 // History settings
 export const MAX_HISTORY_LENGTH = 50;
+
+// Dark ↔ Light theme color mappings for node backgrounds and text
+export const THEME_COLOR_MAP: Record<string, string> = {
+  // Dark → Light
+  '#1e1e2e': '#ffffff',
+  'rgba(30, 30, 46, 0.8)': 'rgba(255, 255, 255, 0.9)',
+  // Light → Dark
+  '#ffffff': '#1e1e2e',
+  'rgba(255, 255, 255, 0.9)': 'rgba(30, 30, 46, 0.8)',
+};
+
+export const THEME_TEXT_COLOR_MAP: Record<string, string> = {
+  '#ffffff': '#1e1e2e',
+  '#1e1e2e': '#ffffff',
+};
