@@ -65,6 +65,7 @@ function CanvasInner() {
     setNodes,
     duplicateNode,
     handleNodeDrop,
+    saveTemplate,
   } = useStore(useShallow((state) => ({
     nodes: state.nodes,
     edges: state.edges,
@@ -80,6 +81,7 @@ function CanvasInner() {
     setNodes: state.setNodes,
     duplicateNode: state.duplicateNode,
     handleNodeDrop: state.handleNodeDrop,
+    saveTemplate: state.saveTemplate,
   })));
 
   const [menuType, setMenuType] = React.useState<'pane' | 'node' | 'edge'>('pane');
@@ -149,17 +151,54 @@ function CanvasInner() {
     (event: React.DragEvent) => {
       event.preventDefault();
 
-      const type = event.dataTransfer.getData('application/reactflow') as NodeType;
-      if (!type) return;
-
       const position = screenToFlowPosition({
         x: event.clientX,
         y: event.clientY,
       });
 
+      // Handle custom templates
+      const templateId = event.dataTransfer.getData('application/reactflow-template');
+      if (templateId) {
+        const template = useStore.getState().templates.find(t => t.id === templateId);
+        if (template) {
+          const idMap = new Map<string, string>();
+          
+          const newNodes = template.nodes.map(n => {
+            const newId = `node-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+            idMap.set(n.id, newId);
+            return {
+              ...n,
+              id: newId,
+              position: {
+                x: position.x + n.position.x,
+                y: position.y + n.position.y,
+              },
+              selected: true, // Auto-select inserted template nodes
+            };
+          });
+
+          const newEdges = template.edges.map(e => ({
+            ...e,
+            id: `edge-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+            source: idMap.get(e.source) || e.source,
+            target: idMap.get(e.target) || e.target,
+            selected: true,
+          }));
+
+          useStore.getState().setNodes([...nodes, ...newNodes]);
+          // using state via direct get if possible or from closure
+          useStore.getState().setEdges([...useStore.getState().edges, ...newEdges]);
+        }
+        return;
+      }
+
+      // Handle basic shapes
+      const type = event.dataTransfer.getData('application/reactflow') as NodeType;
+      if (!type) return;
+
       addNode(type, position);
     },
-    [screenToFlowPosition, addNode]
+    [screenToFlowPosition, addNode, nodes]
   );
 
   const onNodeContextMenu = useCallback(
@@ -201,8 +240,13 @@ function CanvasInner() {
       }
     } else if (action === 'duplicate' && menuTargetId && menuType === 'node') {
       duplicateNode(menuTargetId);
+    } else if (action === 'save_template' && menuType === 'node') {
+      const templateName = window.prompt('Введите имя шаблона:', 'Новый шаблон');
+      if (templateName) {
+        saveTemplate(templateName);
+      }
     }
-  }, [menuType, menuTargetId, nodes, edges, setNodes, deleteSelected, duplicateNode]);
+  }, [menuType, menuTargetId, nodes, edges, setNodes, deleteSelected, duplicateNode, saveTemplate]);
 
   const onSelectionChange = useCallback(
     ({ nodes, edges }: { nodes: { id: string }[]; edges: { id: string }[] }) => {

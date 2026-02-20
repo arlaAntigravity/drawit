@@ -57,3 +57,11 @@ export interface NodeStyleConfig {
   handleColor: string;
   selectedShadowColor: string;
 }
+
+// Custom Template
+export interface Template {
+  id: string;
+  name: string;
+  nodes: Node<NodeData>[];
+  edges: Edge<EdgeData>[];
+}

@@ -1,10 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { create } from 'zustand';
 import { createNodeSlice, NodeSlice } from '@/store/slices/nodeSlice';
 import { createEdgeSlice, EdgeSlice } from '@/store/slices/edgeSlice';
 import { createSelectionSlice, SelectionSlice } from '@/store/slices/selectionSlice';
 import { createHistorySlice, HistorySlice } from '@/store/slices/historySlice';
+import { createLibrarySlice, LibrarySlice } from '@/store/slices/librarySlice';
 
-export interface TestDiagramState extends NodeSlice, EdgeSlice, SelectionSlice, HistorySlice {}
+export interface TestDiagramState extends NodeSlice, EdgeSlice, SelectionSlice, HistorySlice, LibrarySlice {}
 
 /**
  * Creates a fresh Zustand store for testing (no persist middleware).
@@ -16,5 +18,6 @@ export function createTestStore() {
     ...createEdgeSlice(set as any, get as any),
     ...createSelectionSlice(set as any, get as any),
     ...createHistorySlice(set as any, get as any),
+    ...createLibrarySlice(set as any, get as any),
   }));
 }

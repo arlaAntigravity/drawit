@@ -8,7 +8,7 @@ import {
   ContextMenuLabel,
   ContextMenuShortcut,
 } from '@/components/ui/context-menu';
-import { TrashIcon, CopyIcon, PlusIcon, UndoIcon, RedoIcon, ImageIcon } from '@/components/icons';
+import { TrashIcon, CopyIcon, PlusIcon, UndoIcon, RedoIcon, ImageIcon, SaveIcon } from '@/components/icons';
 import { NodeType } from '@/lib/types';
 
 interface CanvasContextMenuProps {
@@ -45,6 +45,10 @@ export function CanvasContextMenu({
               <CopyIcon className="mr-2" />
               Дублировать
               <ContextMenuShortcut>Ctrl+D</ContextMenuShortcut>
+            </ContextMenuItem>
+            <ContextMenuItem onClick={() => handleMenuAction('save_template')}>
+              <SaveIcon className="mr-2" />
+              Сохранить как шаблон
             </ContextMenuItem>
             <ContextMenuItem variant="destructive" onClick={() => handleMenuAction('delete')}>
               <TrashIcon className="mr-2" />

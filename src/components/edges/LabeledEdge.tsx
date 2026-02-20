@@ -7,7 +7,7 @@ import {
   EdgeLabelRenderer,
 } from 'reactflow';
 import { useStore } from '@/store/useStore';
-import { EDGE_STYLE, SELECTED_EDGE_COLOR } from '@/lib/constants';
+import { EDGE_STYLE } from '@/lib/constants';
 import { EdgeData } from '@/lib/types';
 
 export function LabeledEdge({

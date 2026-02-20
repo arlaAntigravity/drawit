@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { createTestStore, TestDiagramState } from './helpers';
+import { createTestStore } from './helpers';
 import { MAX_HISTORY_LENGTH } from '@/lib/constants';
 
 describe('historySlice', () => {
