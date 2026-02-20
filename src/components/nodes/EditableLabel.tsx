@@ -93,7 +93,7 @@ export function EditableLabel({
         onChange={(e) => setEditText(e.target.value)}
         onBlur={handleBlur}
         onKeyDown={handleKeyDown}
-        className="nodrag nopan px-1 bg-transparent border border-white/50 rounded outline-none focus:border-primary resize-none w-full min-h-[1.5em] overflow-hidden leading-snug"
+        className={`nodrag nopan px-1 bg-transparent border border-white/50 rounded outline-none focus:border-primary resize-none w-full min-h-[1.5em] overflow-hidden leading-snug ${className}`}
         style={{
           color: textColor,
           fontSize,
