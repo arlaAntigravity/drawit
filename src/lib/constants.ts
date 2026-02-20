@@ -95,6 +95,15 @@ export const NODE_STYLES: Record<
     handleColor: "indigo",
     selectedShadowColor: "rgba(99, 102, 241, 0.3)",
   },
+  image: {
+    width: 200,
+    height: 200,
+    backgroundColor: "transparent",
+    borderColor: "transparent",
+    borderWidth: 0,
+    handleColor: "indigo",
+    selectedShadowColor: "rgba(99, 102, 241, 0.5)",
+  },
 };
 
 // Color presets for property panel

@@ -8,7 +8,7 @@ import {
   ContextMenuLabel,
   ContextMenuShortcut,
 } from '@/components/ui/context-menu';
-import { TrashIcon, CopyIcon, PlusIcon, UndoIcon, RedoIcon } from '@/components/icons';
+import { TrashIcon, CopyIcon, PlusIcon, UndoIcon, RedoIcon, ImageIcon } from '@/components/icons';
 import { NodeType } from '@/lib/types';
 
 interface CanvasContextMenuProps {
@@ -88,6 +88,10 @@ export function CanvasContextMenu({
             <ContextMenuItem onClick={() => onAddNode('roundedRect', screenToFlowPosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 }))}>
               <PlusIcon className="mr-2" />
               Закругленный блок
+            </ContextMenuItem>
+            <ContextMenuItem onClick={() => onAddNode('image', screenToFlowPosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 }))}>
+              <ImageIcon className="mr-2" />
+              Изображение
             </ContextMenuItem>
           </>
         )}

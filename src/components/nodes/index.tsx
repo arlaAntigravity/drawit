@@ -11,6 +11,7 @@ import { NodeData } from "@/lib/types";
 import { NodeHandles } from "./NodeHandles";
 import { EditableLabel } from "./EditableLabel";
 import { GenericNode } from "./GenericNode";
+import { ImageNode } from "./ImageNode";
 import { NODE_STYLES, HANDLE_COLORS } from "@/lib/constants";
 
 // ============================================================================
@@ -129,6 +130,10 @@ function SvgShapeNode({
         label={data.label}
         textColor={data.textColor}
         fontSize={data.fontSize}
+        fontWeight={data.fontWeight}
+        fontStyle={data.fontStyle}
+        textDecoration={data.textDecoration}
+        textAlign={data.textAlign}
         className="relative z-10 px-4"
       />
     </div>
@@ -203,6 +208,10 @@ export const CylinderNode = memo(({ id, data, selected }: NodeProps<NodeData>) =
         label={data.label}
         textColor={data.textColor}
         fontSize={data.fontSize}
+        fontWeight={data.fontWeight}
+        fontStyle={data.fontStyle}
+        textDecoration={data.textDecoration}
+        textAlign={data.textAlign}
         className="relative z-10 mt-2"
       />
     </div>
@@ -247,6 +256,10 @@ export const GroupNode = memo(({ id, data, selected }: NodeProps<NodeData>) => {
           label={data.label}
           textColor="#ffffff"
           fontSize={data.fontSize}
+          fontWeight={data.fontWeight}
+          fontStyle={data.fontStyle}
+          textDecoration={data.textDecoration}
+          textAlign={data.textAlign}
           className="font-medium"
         />
       </div>
@@ -268,4 +281,5 @@ export const nodeTypes = {
   cylinder: CylinderNode,
   triangle: TriangleNode,
   group: GroupNode,
+  image: ImageNode,
 };

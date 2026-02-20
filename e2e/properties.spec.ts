@@ -87,4 +87,36 @@ test.describe('Панель свойств', () => {
     await expect(panel.locator('text=Ширина')).toBeVisible();
     await expect(panel.locator('text=Высота')).toBeVisible();
   });
+
+  test('показывает настройки форматирования текста', async ({ page }) => {
+    await dragShapeToCanvas(page, 'Прямоугольник');
+    
+    const node = page.locator('.react-flow__node').first();
+    await node.click();
+    
+    await page.waitForTimeout(200);
+    
+    const panel = page.locator('.w-72');
+    await expect(panel.locator('text=Форматирование текста')).toBeVisible();
+    
+    // Кнопки форматирования (B, I, U, выравнивания)
+    await expect(panel.locator('button:has(svg.lucide-bold)')).toBeVisible();
+    await expect(panel.locator('button:has(svg.lucide-italic)')).toBeVisible();
+    await expect(panel.locator('button:has(svg.lucide-underline)')).toBeVisible();
+  });
+
+  test('показывает настройки изображения для ImageNode', async ({ page }) => {
+    await dragShapeToCanvas(page, 'Картинка');
+    
+    const node = page.locator('.react-flow__node').first();
+    await node.click();
+    
+    await page.waitForTimeout(200);
+    
+    const panel = page.locator('.w-72');
+    
+    // Поля для картинки
+    await expect(panel.locator('label[for="imageUrl"]')).toBeVisible();
+    await expect(panel.locator('button:has-text("Выбрать изображение")')).toBeVisible();
+  });
 });

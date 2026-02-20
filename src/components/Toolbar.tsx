@@ -21,6 +21,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { useStore as useFlowStore, useReactFlow } from 'reactflow';
 import { useAutoLayout } from '@/hooks/useAutoLayout';
 import { toPng, toSvg } from 'html-to-image';
+import { jsPDF } from 'jspdf';
 import {
   UndoIcon,
   RedoIcon,
@@ -147,6 +148,30 @@ export function Toolbar() {
     }
   }, [nodes]);
 
+  const handleExportPDF = useCallback(async () => {
+    const element = document.querySelector('.react-flow') as HTMLElement;
+    if (!element || nodes.length === 0) return;
+
+    try {
+      const dataUrl = await toPng(element, {
+        backgroundColor: theme === 'dark' ? '#0f0f17' : '#ffffff',
+        width: element.offsetWidth,
+        height: element.offsetHeight,
+      });
+
+      const pdf = new jsPDF({
+        orientation: element.offsetWidth > element.offsetHeight ? 'landscape' : 'portrait',
+        unit: 'px',
+        format: [element.offsetWidth, element.offsetHeight]
+      });
+      pdf.addImage(dataUrl, 'PNG', 0, 0, element.offsetWidth, element.offsetHeight);
+      pdf.save('diagram.pdf');
+      toast.success('PDF экспортирован');
+    } catch (_err) {
+      toast.error('Ошибка экспорта PDF');
+    }
+  }, [nodes, theme]);
+
   const handleExportJSON = useCallback(() => {
     const data = JSON.stringify({ nodes, edges }, null, 2);
     const blob = new Blob([data], { type: 'application/json' });
@@ -239,6 +264,10 @@ export function Toolbar() {
             <DropdownMenuItem onClick={handleExportSVG}>
               <LayersIcon className="mr-2" />
               SVG
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleExportPDF}>
+              <FileIcon className="mr-2" />
+              PDF
             </DropdownMenuItem>
             <DropdownMenuItem onClick={handleExportJSON}>
               <FileIcon className="mr-2" />

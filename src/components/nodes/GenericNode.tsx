@@ -83,6 +83,10 @@ export const GenericNode = memo(({
         label={data.label}
         textColor={data.textColor}
         fontSize={data.fontSize}
+        fontWeight={data.fontWeight}
+        fontStyle={data.fontStyle}
+        textDecoration={data.textDecoration}
+        textAlign={data.textAlign}
         className={labelClassName}
       />
     </div>

@@ -8,6 +8,10 @@ interface EditableLabelProps {
   label: string;
   textColor: string;
   fontSize: number;
+  fontWeight?: "normal" | "bold";
+  fontStyle?: "normal" | "italic";
+  textDecoration?: "none" | "underline" | "line-through";
+  textAlign?: "left" | "center" | "right" | "justify";
   className?: string;
 }
 
@@ -20,11 +24,15 @@ export function EditableLabel({
   label,
   textColor,
   fontSize,
+  fontWeight = "normal",
+  fontStyle = "normal",
+  textDecoration = "none",
+  textAlign = "center",
   className = '',
 }: EditableLabelProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(label);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const updateNodeData = useStore((state) => state.updateNodeData);
 
   // Sync with prop changes when not editing
@@ -79,20 +87,23 @@ export function EditableLabel({
 
   if (isEditing) {
     return (
-      <input
+      <textarea
         ref={inputRef}
-        type="text"
         value={editText}
         onChange={(e) => setEditText(e.target.value)}
         onBlur={handleBlur}
         onKeyDown={handleKeyDown}
-        className="nodrag nopan px-1 bg-transparent border border-white/50 rounded text-center outline-none focus:border-primary"
+        className="nodrag nopan px-1 bg-transparent border border-white/50 rounded outline-none focus:border-primary resize-none w-full min-h-[1.5em] overflow-hidden leading-snug"
         style={{
           color: textColor,
           fontSize,
+          fontWeight,
+          fontStyle,
+          textDecoration,
+          textAlign,
           minWidth: 40,
-          maxWidth: '100%',
         }}
+        rows={editText.split('\n').length || 1}
       />
     );
   }
@@ -103,8 +114,16 @@ export function EditableLabel({
       style={{
         color: textColor,
         fontSize,
+        fontWeight,
+        fontStyle,
+        textDecoration,
+        textAlign,
+        whiteSpace: "pre-wrap",
+        display: "block",
+        width: "100%",
+        lineHeight: "1.375",
       }}
-      className={`text-center px-2 cursor-inherit select-none ${className}`}
+      className={`px-2 cursor-inherit select-none ${className}`}
       title="Двойной клик для редактирования"
     >
       {label}

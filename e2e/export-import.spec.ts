@@ -27,6 +27,7 @@ test.describe('Функции экспорта', () => {
     
     await expect(page.locator('[role="menuitem"]:has-text("PNG")')).toBeVisible();
     await expect(page.locator('[role="menuitem"]:has-text("SVG")')).toBeVisible();
+    await expect(page.locator('[role="menuitem"]:has-text("PDF")')).toBeVisible();
     await expect(page.locator('[role="menuitem"]:has-text("JSON")')).toBeVisible();
   });
 
@@ -66,6 +67,16 @@ test.describe('Функции экспорта', () => {
     
     const download = await downloadPromise;
     expect(download.suggestedFilename()).toBe('diagram.svg');
+  });
+
+  test('экспорт в PDF запускает скачивание', async ({ page }) => {
+    const downloadPromise = page.waitForEvent('download');
+    
+    await page.locator('text=Экспорт').click();
+    await page.locator('[role="menuitem"]:has-text("PDF")').click();
+    
+    const download = await downloadPromise;
+    expect(download.suggestedFilename()).toBe('diagram.pdf');
   });
 });
 

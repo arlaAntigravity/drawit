@@ -33,6 +33,15 @@ test.describe('Операции с узлами', () => {
     await expect(page.locator('.react-flow__node')).toHaveCount(2);
   });
 
+  test('можно добавить картинку перетаскиванием', async ({ page }) => {
+    await dragShapeToCanvas(page, 'Картинка');
+    
+    // Узел должен появиться на холсте
+    const node = page.locator('.react-flow__node').first();
+    await expect(node).toBeVisible();
+    await expect(node.locator('text=Нет изображения')).toBeVisible();
+  });
+
   test('можно выделить узел кликом', async ({ page }) => {
     await dragShapeToCanvas(page, 'Прямоугольник');
     
@@ -87,8 +96,8 @@ test.describe('Операции с узлами', () => {
     const label = node.locator('span[title="Двойной клик для редактирования"]');
     await label.dblclick();
     
-    // Должен появиться input
-    const input = node.locator('input[type="text"]');
+    // Должен появиться textarea
+    const input = node.locator('textarea');
     await expect(input).toBeVisible();
     
     // Вводим новый текст

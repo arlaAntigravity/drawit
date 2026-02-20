@@ -12,7 +12,8 @@ export type NodeType =
   | "text"
   | "cylinder"
   | "triangle"
-  | "group";
+  | "group"
+  | "image";
 
 // Node Data
 export interface NodeData {
@@ -24,6 +25,11 @@ export interface NodeData {
   borderWidth: number;
   textColor: string;
   fontSize: number;
+  fontWeight?: "normal" | "bold";
+  fontStyle?: "normal" | "italic";
+  textDecoration?: "none" | "underline" | "line-through";
+  textAlign?: "left" | "center" | "right" | "justify";
+  imageUrl?: string;
 }
 
 // Edge Data

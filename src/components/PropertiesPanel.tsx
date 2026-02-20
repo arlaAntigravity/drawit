@@ -17,7 +17,18 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { ChevronDownIcon } from 'lucide-react';
+import { 
+  ChevronDownIcon, 
+  UploadIcon,
+  Bold,
+  Italic,
+  Underline,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  AlignJustify
+} from 'lucide-react';
+import { toast } from 'sonner';
 
 export function PropertiesPanel() {
   const { 
@@ -59,6 +70,24 @@ export function PropertiesPanel() {
       commitNodeData();
     };
 
+    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('Файл слишком большой. Максимум 5 MB.');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const result = event.target?.result as string;
+        handleChange('imageUrl', result);
+        commitNodeData();
+      };
+      reader.readAsDataURL(file);
+    };
+
     return (
       <div className="w-72 border-l border-border bg-card flex flex-col h-full overflow-hidden">
         {/* Header */}
@@ -68,8 +97,8 @@ export function PropertiesPanel() {
         </div>
         
         {/* Properties */}
-        <ScrollArea className="flex-1">
-          <div className="p-4 space-y-6">
+        <ScrollArea className="flex-1 h-full">
+          <div className="p-4 space-y-6 pb-24">
             {/* Text Label */}
             <div className="space-y-2">
               <Label htmlFor="label">Текст</Label>
@@ -81,6 +110,42 @@ export function PropertiesPanel() {
                 className="bg-background"
               />
             </div>
+
+            {selectedNode.type === 'image' && (
+              <>
+                <Separator />
+                {/* Image Section */}
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="imageUrl">URL Изображения</Label>
+                    <Input
+                      id="imageUrl"
+                      value={data.imageUrl || ''}
+                      onChange={(e) => handleChange('imageUrl', e.target.value)}
+                      onBlur={commitNodeData}
+                      placeholder="https://..."
+                      className="bg-background text-xs"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Или загрузите файл</Label>
+                    <div className="flex items-center">
+                      <Input
+                        type="file"
+                        id="imageUpload"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleImageUpload}
+                      />
+                      <Button variant="outline" className="w-full bg-background" onClick={() => document.getElementById('imageUpload')?.click()}>
+                        <UploadIcon className="w-4 h-4 mr-2" />
+                        Выбрать изображение
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
 
             <Separator />
 
@@ -155,6 +220,76 @@ export function PropertiesPanel() {
                 onChange={(v) => handleChange('fontSize', v)}
                 onCommit={commitNodeData}
               />
+            </div>
+
+            <Separator />
+
+            {/* Formatting Section */}
+            <div className="space-y-4 pb-4">
+              <Label>Форматирование текста</Label>
+              <div className="flex flex-col gap-2">
+                <div className="flex gap-1 bg-muted/50 p-1 rounded-md w-fit text-muted-foreground p-1 border border-border">
+                  <Button 
+                    variant={data.fontWeight === 'bold' ? 'secondary' : 'ghost'} 
+                    size="sm"
+                    className="h-8 w-8 p-0"
+                    onClick={() => { handleChange('fontWeight', data.fontWeight === 'bold' ? 'normal' : 'bold'); commitNodeData(); }}
+                  >
+                    <Bold className="w-4 h-4" />
+                  </Button>
+                  <Button 
+                    variant={data.fontStyle === 'italic' ? 'secondary' : 'ghost'} 
+                    size="sm"
+                    className="h-8 w-8 p-0"
+                    onClick={() => { handleChange('fontStyle', data.fontStyle === 'italic' ? 'normal' : 'italic'); commitNodeData(); }}
+                  >
+                    <Italic className="w-4 h-4" />
+                  </Button>
+                  <Button 
+                    variant={data.textDecoration === 'underline' ? 'secondary' : 'ghost'} 
+                    size="sm"
+                    className="h-8 w-8 p-0"
+                    onClick={() => { handleChange('textDecoration', data.textDecoration === 'underline' ? 'none' : 'underline'); commitNodeData(); }}
+                  >
+                    <Underline className="w-4 h-4" />
+                  </Button>
+                </div>
+
+                <div className="flex gap-1 bg-muted/50 p-1 rounded-md w-fit text-muted-foreground p-1 border border-border">
+                  <Button 
+                    variant={data.textAlign === 'left' ? 'secondary' : 'ghost'} 
+                    size="sm"
+                    className="h-8 w-8 p-0"
+                    onClick={() => { handleChange('textAlign', 'left'); commitNodeData(); }}
+                  >
+                    <AlignLeft className="w-4 h-4" />
+                  </Button>
+                  <Button 
+                    variant={data.textAlign === 'center' ? 'secondary' : 'ghost'} 
+                    size="sm"
+                    className="h-8 w-8 p-0"
+                    onClick={() => { handleChange('textAlign', 'center'); commitNodeData(); }}
+                  >
+                    <AlignCenter className="w-4 h-4" />
+                  </Button>
+                  <Button 
+                    variant={data.textAlign === 'right' ? 'secondary' : 'ghost'} 
+                    size="sm"
+                    className="h-8 w-8 p-0"
+                    onClick={() => { handleChange('textAlign', 'right'); commitNodeData(); }}
+                  >
+                    <AlignRight className="w-4 h-4" />
+                  </Button>
+                  <Button 
+                    variant={data.textAlign === 'justify' ? 'secondary' : 'ghost'} 
+                    size="sm"
+                    className="h-8 w-8 p-0"
+                    onClick={() => { handleChange('textAlign', 'justify'); commitNodeData(); }}
+                  >
+                    <AlignJustify className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
         </ScrollArea>
