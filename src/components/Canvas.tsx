@@ -5,7 +5,6 @@ import ReactFlow, {
   Background,
   Controls,
   MiniMap,
-  ReactFlowProvider,
   useReactFlow,
   SelectionMode,
   BackgroundVariant,
@@ -17,33 +16,20 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 
 import { useStore } from '@/store/useStore';
+import { useShallow } from 'zustand/react/shallow';
 import { NodeType, NodeData } from '@/lib/types';
 import { nodeTypes } from '@/components/nodes';
 import { edgeTypes } from '@/components/edges';
 import { SnapGuides } from '@/components/SnapGuides';
 import { useSnapGuides, SnapGuide } from '@/hooks/useSnapGuides';
-import { 
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuTrigger,
-  ContextMenuSeparator,
-  ContextMenuLabel,
-  ContextMenuShortcut,
-} from '@/components/ui/context-menu';
+import { useShortcuts } from '@/hooks/useShortcuts';
+import { CanvasContextMenu } from '@/components/CanvasContextMenu';
 import { 
   EDGE_STYLE, 
   SNAP_GRID, 
   BACKGROUND_SETTINGS,
   NODE_STYLES 
 } from '@/lib/constants';
-import { 
-  TrashIcon, 
-  CopyIcon, 
-  PlusIcon,
-  UndoIcon,
-  RedoIcon
-} from '@/components/icons';
 
 // ============================================================================
 // MiniMap Color Function
@@ -71,7 +57,6 @@ function CanvasInner() {
     onEdgesChange,
     onConnect,
     addNode,
-    setNodeParent,
     setSelectedNodes,
     setSelectedEdges,
     deleteSelected,
@@ -79,10 +64,23 @@ function CanvasInner() {
     redo,
     setNodes,
     duplicateNode,
-    copySelected,
-    pasteClipboard,
-    selectedNodes,
-  } = useStore();
+    handleNodeDrop,
+  } = useStore(useShallow((state) => ({
+    nodes: state.nodes,
+    edges: state.edges,
+    onNodesChange: state.onNodesChange,
+    onEdgesChange: state.onEdgesChange,
+    onConnect: state.onConnect,
+    addNode: state.addNode,
+    setSelectedNodes: state.setSelectedNodes,
+    setSelectedEdges: state.setSelectedEdges,
+    deleteSelected: state.deleteSelected,
+    undo: state.undo,
+    redo: state.redo,
+    setNodes: state.setNodes,
+    duplicateNode: state.duplicateNode,
+    handleNodeDrop: state.handleNodeDrop,
+  })));
 
   const [menuType, setMenuType] = React.useState<'pane' | 'node' | 'edge'>('pane');
   const [menuTargetId, setMenuTargetId] = React.useState<string | null>(null);
@@ -214,55 +212,7 @@ function CanvasInner() {
     [setSelectedNodes, setSelectedEdges]
   );
 
-  React.useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      // Don't trigger shortcuts if user is typing in an input or textarea
-      const target = event.target as HTMLElement;
-      const isInput = 
-        target.tagName === 'INPUT' || 
-        target.tagName === 'TEXTAREA' || 
-        target.isContentEditable;
-
-      if (isInput) return;
-
-      // Use event.code for layout-independent shortcuts
-      if (event.code === 'Delete' || event.code === 'Backspace') {
-        deleteSelected();
-      }
-      
-      if (event.ctrlKey || event.metaKey) {
-        if (event.code === 'KeyZ') {
-          event.preventDefault();
-          if (event.shiftKey) {
-            redo();
-          } else {
-            undo();
-          }
-        }
-        if (event.code === 'KeyY') {
-          event.preventDefault();
-          redo();
-        }
-        if (event.code === 'KeyC') {
-          event.preventDefault();
-          copySelected();
-        }
-        if (event.code === 'KeyV') {
-          event.preventDefault();
-          pasteClipboard();
-        }
-        if (event.code === 'KeyD') {
-          event.preventDefault();
-          if (selectedNodes.length > 0) {
-            duplicateNode(selectedNodes[0]);
-          }
-        }
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [deleteSelected, undo, redo, copySelected, pasteClipboard, duplicateNode, selectedNodes]);
+  useShortcuts();
 
   // Snap guides handlers
   const onNodeDrag: NodeDragHandler = useCallback(
@@ -325,153 +275,67 @@ function CanvasInner() {
     (_event, draggedNode) => {
       setGuides([]);
       endDrag();
-      
-      // Skip if the dragged node is a group itself
-      if (draggedNode.type === 'group') return;
-
-      const nodeWidth = (draggedNode as Node<NodeData>).data?.width || 100;
-      const nodeHeight = (draggedNode as Node<NodeData>).data?.height || 50;
-      const nodeCenterX = (draggedNode.positionAbsolute?.x ?? 0) + nodeWidth / 2;
-      const nodeCenterY = (draggedNode.positionAbsolute?.y ?? 0) + nodeHeight / 2;
-
-      // Find if node was dropped inside a group
-      const targetGroup = nodes.find(n => {
-        if (n.type !== 'group' || n.id === draggedNode.id) return false;
-        const groupWidth = n.data?.width || 300;
-        const groupHeight = n.data?.height || 200;
-        
-        // Check if center of dragged node is inside the group
-        return (
-          nodeCenterX > n.position.x &&
-          nodeCenterX < n.position.x + groupWidth &&
-          nodeCenterY > n.position.y &&
-          nodeCenterY < n.position.y + groupHeight
-        );
-      });
-
-      if (targetGroup) {
-        // If dropped inside a group (new or same), set parent
-        if (draggedNode.parentNode !== targetGroup.id) {
-           setNodeParent(draggedNode.id, targetGroup.id);
-        }
-      } else {
-        // If dropped outside any group, but currently has a parent, detach it
-        if (draggedNode.parentNode) {
-          setNodeParent(draggedNode.id, null);
-        }
-      }
+      handleNodeDrop(draggedNode as Node<NodeData>);
     },
-    [nodes, endDrag, setNodeParent]
+    [setGuides, endDrag, handleNodeDrop]
   );
 
   return (
     <div className="flex-1 overflow-hidden relative" ref={reactFlowWrapper}>
-      <ContextMenu>
-        <ContextMenuTrigger className="h-full w-full">
-          <ReactFlow
-            nodes={safeNodes}
-            edges={edges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            onConnect={onConnect}
-            onDragOver={onDragOver}
-            onDrop={onDrop}
-            onSelectionChange={onSelectionChange}
-            onNodeDrag={onNodeDrag}
-            onNodeDragStop={onNodeDragStop}
-            onNodeContextMenu={onNodeContextMenu}
-            onEdgeContextMenu={onEdgeContextMenu}
-            onPaneContextMenu={onPaneContextMenu}
-            nodeTypes={nodeTypes}
-            edgeTypes={edgeTypes}
-            selectionMode={SelectionMode.Partial}
-            connectionMode={ConnectionMode.Loose}
-            fitView
-            snapToGrid
-            snapGrid={SNAP_GRID}
-            defaultEdgeOptions={{
-              type: 'labeled',
-              style: EDGE_STYLE,
-            }}
-            className="bg-background"
-            deleteKeyCode={null}
-          >
-            <Background 
-              variant={BackgroundVariant.Dots} 
-              gap={BACKGROUND_SETTINGS.gap} 
-              size={BACKGROUND_SETTINGS.size} 
-              color={BACKGROUND_SETTINGS.color} 
-            />
-            <Controls 
-              className="!bg-card !border-border !shadow-lg"
-              showInteractive={false}
-            />
-            <MiniMap 
-              nodeColor={getNodeColor}
-              maskColor="rgba(0, 0, 0, 0.2)"
-              className="!bg-card !border-border"
-            />
-            <SnapGuides guides={guides} />
-          </ReactFlow>
-        </ContextMenuTrigger>
-
-        <ContextMenuContent className="w-56">
-          {menuType === 'node' && (
-            <>
-              <ContextMenuLabel>Узел</ContextMenuLabel>
-              <ContextMenuSeparator />
-              <ContextMenuItem onClick={() => handleMenuAction('duplicate')}>
-                <CopyIcon className="mr-2" />
-                Дублировать
-                <ContextMenuShortcut>Ctrl+D</ContextMenuShortcut>
-              </ContextMenuItem>
-              <ContextMenuItem variant="destructive" onClick={() => handleMenuAction('delete')}>
-                <TrashIcon className="mr-2" />
-                Удалить
-                <ContextMenuShortcut>Del</ContextMenuShortcut>
-              </ContextMenuItem>
-            </>
-          )}
-
-          {menuType === 'edge' && (
-            <>
-              <ContextMenuLabel>Связь</ContextMenuLabel>
-              <ContextMenuSeparator />
-              <ContextMenuItem variant="destructive" onClick={() => handleMenuAction('delete')}>
-                <TrashIcon className="mr-2" />
-                Удалить
-              </ContextMenuItem>
-            </>
-          )}
-
-          {menuType === 'pane' && (
-            <>
-              <ContextMenuLabel>Полотно</ContextMenuLabel>
-              <ContextMenuSeparator />
-              <ContextMenuItem onClick={() => undo()}>
-                <UndoIcon className="mr-2" />
-                Отменить
-                <ContextMenuShortcut>Ctrl+Z</ContextMenuShortcut>
-              </ContextMenuItem>
-              <ContextMenuItem onClick={() => redo()}>
-                <RedoIcon className="mr-2" />
-                Повторить
-                <ContextMenuShortcut>Ctrl+Y</ContextMenuShortcut>
-              </ContextMenuItem>
-              <ContextMenuSeparator />
-              <ContextMenuLabel>Добавить быстрые фигуры</ContextMenuLabel>
-              <ContextMenuItem onClick={() => addNode('rectangle', screenToFlowPosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 }))}>
-                <PlusIcon className="mr-2" />
-                Прямоугольник
-              </ContextMenuItem>
-              <ContextMenuItem onClick={() => addNode('roundedRect', screenToFlowPosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 }))}>
-                <PlusIcon className="mr-2" />
-                Закругленный блок
-              </ContextMenuItem>
-            </>
-          )}
-        </ContextMenuContent>
-      </ContextMenu>
+      <CanvasContextMenu
+        menuType={menuType}
+        handleMenuAction={handleMenuAction}
+        undo={undo}
+        redo={redo}
+        onAddNode={addNode}
+        screenToFlowPosition={screenToFlowPosition}
+      >
+        <ReactFlow
+          nodes={safeNodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          onDragOver={onDragOver}
+          onDrop={onDrop}
+          onSelectionChange={onSelectionChange}
+          onNodeDrag={onNodeDrag}
+          onNodeDragStop={onNodeDragStop}
+          onNodeContextMenu={onNodeContextMenu}
+          onEdgeContextMenu={onEdgeContextMenu}
+          onPaneContextMenu={onPaneContextMenu}
+          nodeTypes={nodeTypes}
+          edgeTypes={edgeTypes}
+          selectionMode={SelectionMode.Partial}
+          connectionMode={ConnectionMode.Loose}
+          fitView
+          snapToGrid
+          snapGrid={SNAP_GRID}
+          defaultEdgeOptions={{
+            type: 'labeled',
+            style: EDGE_STYLE,
+          }}
+          className="bg-background"
+          deleteKeyCode={null}
+        >
+          <Background 
+            variant={BackgroundVariant.Dots} 
+            gap={BACKGROUND_SETTINGS.gap} 
+            size={BACKGROUND_SETTINGS.size} 
+            color={BACKGROUND_SETTINGS.color} 
+          />
+          <Controls 
+            className="!bg-card !border-border !shadow-lg"
+            showInteractive={false}
+          />
+          <MiniMap 
+            nodeColor={getNodeColor}
+            maskColor="rgba(0, 0, 0, 0.2)"
+            className="!bg-card !border-border"
+          />
+          <SnapGuides guides={guides} />
+        </ReactFlow>
+      </CanvasContextMenu>
     </div>
   );
 }

@@ -6,7 +6,7 @@ import {
 } from 'reactflow';
 
 import { NodeType, NodeData } from '@/lib/types';
-import { NODE_STYLES, MAX_HISTORY_LENGTH } from '@/lib/constants';
+import { NODE_STYLES } from '@/lib/constants';
 import type { DiagramState } from '../useStore';
 
 // ============================================================================
@@ -51,6 +51,7 @@ export interface NodeSlice {
   duplicateNode: (id: string) => void;
   alignNodes: (direction: 'left' | 'right' | 'top' | 'bottom' | 'v-center' | 'h-center') => void;
   setNodeParent: (nodeId: string, parentId: string | null) => void;
+  handleNodeDrop: (draggedNode: Node<NodeData>) => void;
   onNodesChange: (changes: NodeChange[]) => void;
 }
 
@@ -188,6 +189,39 @@ export const createNodeSlice = (
       }),
     });
     get().pushHistory();
+  },
+
+  handleNodeDrop: (draggedNode) => {
+    if (draggedNode.type === 'group') return;
+
+    const nodes = get().nodes;
+    const nodeWidth = draggedNode.data?.width || 100;
+    const nodeHeight = draggedNode.data?.height || 50;
+    const nodeCenterX = (draggedNode.positionAbsolute?.x ?? 0) + nodeWidth / 2;
+    const nodeCenterY = (draggedNode.positionAbsolute?.y ?? 0) + nodeHeight / 2;
+
+    const targetGroup = nodes.find(n => {
+      if (n.type !== 'group' || n.id === draggedNode.id) return false;
+      const groupWidth = n.data?.width || 300;
+      const groupHeight = n.data?.height || 200;
+      
+      return (
+        nodeCenterX > n.position.x &&
+        nodeCenterX < n.position.x + groupWidth &&
+        nodeCenterY > n.position.y &&
+        nodeCenterY < n.position.y + groupHeight
+      );
+    });
+
+    if (targetGroup) {
+      if (draggedNode.parentNode !== targetGroup.id) {
+         get().setNodeParent(draggedNode.id, targetGroup.id);
+      }
+    } else {
+      if (draggedNode.parentNode) {
+        get().setNodeParent(draggedNode.id, null);
+      }
+    }
   },
 
   onNodesChange: (changes) => {

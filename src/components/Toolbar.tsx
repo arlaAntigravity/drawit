@@ -17,6 +17,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useStore } from '@/store/useStore';
+import { useShallow } from 'zustand/react/shallow';
 import { useStore as useFlowStore, useReactFlow } from 'reactflow';
 import { useAutoLayout } from '@/hooks/useAutoLayout';
 import { toPng, toSvg } from 'html-to-image';
@@ -50,7 +51,18 @@ import { PresetModal } from '@/components/PresetModal';
 import { THEME_COLOR_MAP, THEME_TEXT_COLOR_MAP } from '@/lib/constants';
 
 export function Toolbar() {
-  const { nodes, edges, undo, redo, setNodes, setEdges, history, historyIndex, alignNodes, selectedNodes } = useStore();
+  const { nodes, edges, undo, redo, setNodes, setEdges, history, historyIndex, alignNodes, selectedNodes } = useStore(useShallow((state) => ({
+    nodes: state.nodes,
+    edges: state.edges,
+    undo: state.undo,
+    redo: state.redo,
+    setNodes: state.setNodes,
+    setEdges: state.setEdges,
+    history: state.history,
+    historyIndex: state.historyIndex,
+    alignNodes: state.alignNodes,
+    selectedNodes: state.selectedNodes,
+  })));
   const { layoutVertical, layoutHorizontal, layoutTree } = useAutoLayout();
   const { zoomIn, zoomOut, fitView } = useReactFlow();
   const zoom = useFlowStore((s) => s.transform[2]);
@@ -117,7 +129,7 @@ export function Toolbar() {
 
       downloadFile(dataUrl, 'diagram.png');
       toast.success('PNG экспортирован');
-    } catch (err) {
+    } catch (_err) {
       toast.error('Ошибка экспорта PNG');
     }
   }, [nodes]);
@@ -130,7 +142,7 @@ export function Toolbar() {
       const dataUrl = await toSvg(element, { backgroundColor: '#0f0f17' });
       downloadFile(dataUrl, 'diagram.svg');
       toast.success('SVG экспортирован');
-    } catch (err) {
+    } catch (_err) {
       toast.error('Ошибка экспорта SVG');
     }
   }, [nodes]);
@@ -162,7 +174,7 @@ export function Toolbar() {
         } else {
           toast.error('Неверный формат файла');
         }
-      } catch (err) {
+      } catch (_err) {
         toast.error('Ошибка импорта JSON');
       }
     };

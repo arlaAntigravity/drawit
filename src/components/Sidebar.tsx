@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { NodeType } from '@/lib/types';
 import { SHAPES } from '@/lib/shapes';
-import { LogoIcon } from '@/components/icons';
 
 interface SidebarProps {
   onDragStart: (event: React.DragEvent, nodeType: NodeType) => void;

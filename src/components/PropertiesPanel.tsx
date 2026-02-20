@@ -1,6 +1,7 @@
 'use client';
 
 import { useStore } from '@/store/useStore';
+import { useShallow } from 'zustand/react/shallow';
 import { NodeData, EdgeData } from '@/lib/types';
 import { COLOR_PRESETS } from '@/lib/constants';
 import { Separator } from '@/components/ui/separator';
@@ -28,7 +29,16 @@ export function PropertiesPanel() {
     selectedEdges,
     updateEdgeData,
     commitEdgeData
-  } = useStore();
+  } = useStore(useShallow((state) => ({
+    nodes: state.nodes,
+    selectedNodes: state.selectedNodes,
+    updateNodeData: state.updateNodeData,
+    commitNodeData: state.commitNodeData,
+    edges: state.edges,
+    selectedEdges: state.selectedEdges,
+    updateEdgeData: state.updateEdgeData,
+    commitEdgeData: state.commitEdgeData,
+  })));
   
   const selectedNode = nodes.find((n) => selectedNodes.includes(n.id));
   const selectedEdge = edges.find((e) => selectedEdges.includes(e.id));
